@@ -2,7 +2,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.model.js";
-
+import jwt from "jsonwebtoken";
 const generateAccessAndRefreshToken = async (userId) => {
     try{
        const user = await User.findById(userId);
@@ -165,8 +165,55 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
+const refreshAccessToken = asyncHandler(async (req, res) => { 
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+    if (!incomingRefreshToken) {
+        throw new ApiError(
+            401,
+            "Refresh token is required"
+        );
+    }
+
+    const decodedToken = jwt.verify(
+        incomingRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET,
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    if(!user || user .refreshToken !== incomingRefreshToken) {
+        throw new ApiError(
+            401,
+            "Invalid refresh token"
+        );
+    }
+
+   const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id);
+    const options = {
+        httpOnly: true,
+        secure: true,
+    };
+
+    return res.status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", newRefreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                { 
+                    accessToken,
+                    refreshToken: newRefreshToken
+                },
+                "Access token refreshed successfully"
+            )
+        );
+});
+
+
 export {
     registerUser,
     loginUser,
-    logoutUser 
+    logoutUser,
+    refreshAccessToken
 };
