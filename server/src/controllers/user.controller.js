@@ -285,6 +285,53 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     );
 });
 
+const selectRole = asyncHandler(async (req, res) => {
+    const { role } = req.body;
+
+    if (!role) {
+        throw new ApiError(400, "Role is required");
+    }
+
+    const allowedRoles = [
+        "startup_builder",
+        "professional",
+        "investor",
+    ];
+
+    if (!allowedRoles.includes(role)) {
+        throw new ApiError(400, "Invalid role selected");
+    }
+
+    const user = await User.findById(req.user._id).select("-password -refreshToken");
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+
+    if (!user.roles.includes(role)) {
+        user.roles.push(role);
+    }
+
+
+    user.activeRole = role;
+
+    await user.save();
+
+    const updatedUser = await User.findById(user._id).select(
+        "-password -refreshToken"
+    );
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            updatedUser,
+            "Role selected successfully"
+        )
+    );
+});
+ 
+
 export {
     registerUser,
     loginUser,
@@ -292,5 +339,6 @@ export {
     refreshAccessToken,
     changecurrentUserPassword,
     getCurrentUser,
-    updateAccountDetails
+    updateAccountDetails,
+    selectRole
 };

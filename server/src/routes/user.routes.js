@@ -5,9 +5,10 @@ import {
     loginUser,
     logoutUser,
     refreshAccessToken,
-    changecurrentUserPassword,
+    changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
+    selectRole,
 } from "../controllers/user.controller.js";
 
 import verifyJWT from "../middlewares/auth.middleware.js";
@@ -42,4 +43,8 @@ router.route("/update-account").patch(
     updateAccountDetails
 );
 
+router.route("/select-role").post(
+    verifyJWT,
+    selectRole
+);
 export default router;

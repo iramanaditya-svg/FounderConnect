@@ -40,16 +40,16 @@ const userSchema = new mongoose.Schema(
       type: [
         {
           type: String,
-          enum: ["startup-builder", "investor", "professional"],
+          enum: ["startup_builder", "professional", "investor"],
         },
       ],
-      required: true,
-      validate: {
-        validator: function (roles) {
-          return roles.length > 0;
-        },
-        message: "At least one role is required.",
-      },
+      default: [],
+    },
+
+    activeRole: {
+      type: String,
+      enum: ["startup_builder", "professional", "investor"],
+      default: null,
     },
 
     profilePicture: {
@@ -64,10 +64,20 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    isProfileCompleted: {
-      type: Boolean,
-      default: false,
+    profileCompletion: {
+    startup_builder: {
+        type: Boolean,
+        default: false,
     },
+    professional: {
+        type: Boolean,
+        default: false,
+    },
+    investor: {
+        type: Boolean,
+        default: false,
+    },
+},
 
     isEmailVerified: {
       type: Boolean,
@@ -85,43 +95,46 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function (next) {
-    if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password, 10);
-    next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 userSchema.methods.generateAccessToken = function () {
-    return jwt.sign(
-        {
-            _id: this._id,
-            fullName: this.fullName,
-            username: this.username,
-            roles: this.roles,
-        },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-            expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-        }
-    );
+  return jwt.sign(
+    {
+      _id: this._id,
+      fullName: this.fullName,
+      username: this.username,
+      email: this.email,
+      roles: this.roles,
+      activeRole: this.activeRole,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    }
+  );
 };
 
 userSchema.methods.generateRefreshToken = function () {
-    return jwt.sign(
-        {
-            _id: this._id,
-        },
-        process.env.REFRESH_TOKEN_SECRET,
-        {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-        }
-    );
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    }
+  );
 };
 
 const User = mongoose.model("User", userSchema);
 
 export default User;
+
