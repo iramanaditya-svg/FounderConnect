@@ -3,6 +3,7 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import { use } from "react";
 const generateAccessAndRefreshToken = async (userId) => {
     try{
        const user = await User.findById(userId);
@@ -210,10 +211,86 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         );
 });
 
+const changecurrentUserPassword = asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if(newPassword!== confirmPassword) {
+        throw new ApiError(
+            400,
+            "New password and confirm password do not match"
+        );
+    }
+    const user = await User.findById(req.user._id);
+    const isPasswordValid = await user.isPasswordCorrect(currentPassword);
+
+    if (!isPasswordValid) {
+        throw new ApiError(
+            401,
+            "Invalid current password"
+        );
+    }
+
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {},
+            "Password changed successfully"
+        )
+    );
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+    return res.status(200)
+        .json(
+            new ApiResponse(
+                200,
+                req.user,
+                "Current user fetched successfully"
+            )
+        );
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, username, email } = req.body;
+    if (!fullName && !username && !email) {
+        throw new ApiError(
+            400,
+            "At least one field is required to update"
+        );
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                fullName: fullName,
+                username: username?.toLowerCase(),
+                email: email?.toLowerCase()
+            },
+        },
+        {
+            new: true,
+        }
+    ).select("-password -refreshToken");
+    
+    return res.status(200).json(    
+    new ApiResponse(
+        200,
+        user,
+        "Account details updated successfully"
+    )
+    );
+});
 
 export {
     registerUser,
     loginUser,
     logoutUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changecurrentUserPassword,
+    getCurrentUser,
+    updateAccountDetails
 };
