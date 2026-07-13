@@ -67,4 +67,26 @@ const createProfessionalProfile = asyncHandler(async (req, res) => {
     );
 });
 
-export { createProfessionalProfile };
+const getProfessionalProfile = asyncHandler(async (req, res) => {
+
+    const professionalProfile =
+        await ProfessionalProfile.findOne({
+            user: req.user._id,
+        });
+
+    if (!professionalProfile) {
+        throw new ApiError(
+            404,
+            "Professional profile not found"
+        );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            professionalProfile,
+            "Professional profile fetched successfully"
+        )
+    );
+});
+export { createProfessionalProfile, getProfessionalProfile };
