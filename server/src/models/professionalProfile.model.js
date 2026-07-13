@@ -8,73 +8,78 @@ const professionalProfileSchema = new Schema(
             required: true,
             unique: true,
         },
-        professionalGoal: {
-            type: String,
-            enum: ["founding_member", "hiring"],
-            required: [true, "Professional goal is required"],
-        },
+
         headline: {
             type: String,
-            trim: true,
             required: [true, "Headline is required"],
+            trim: true,
             maxlength: 100,
         },
+
         skills: [
             {
                 type: String,
                 trim: true,
             },
         ],
+
         experience: {
             type: String,
             trim: true,
+            default: "",
         },
+
         education: [
             {
                 institute: {
                     type: String,
                     trim: true,
                 },
+
                 degree: {
                     type: String,
                     trim: true,
                 },
+
                 fieldOfStudy: {
                     type: String,
                     trim: true,
                 },
-                startYear: Number,
-                endYear: Number,
+
+                startYear: {
+                    type: Number,
+                },
+
+                endYear: {
+                    type: Number,
+                },
             },
         ],
+
         resume: {
             type: String,
             default: "",
         },
+
         github: {
             type: String,
             trim: true,
             lowercase: true,
+            default: "",
         },
+
         linkedin: {
             type: String,
             trim: true,
             lowercase: true,
+            default: "",
         },
+
         portfolio: {
             type: String,
             trim: true,
             lowercase: true,
-        },
-        availability: {
-            type: String,
-            enum: [
-                "full_time",
-                "part_time",
-                "internship",
-                "freelance",
-            ],
-            default: "full_time",
+            default: "",
         },
     },
     {

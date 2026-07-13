@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 
 import userRouter from "./routes/user.routes.js";
 import startupBuilderRouter from "./routes/startupBuilder.routes.js";
+import professionalRouter from "./routes/professional.routes.js";
+import investorRouter from "./routes/investor.routes.js";
 const app = express();
 
 app.use(cors({
@@ -26,5 +28,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/startup-builder", startupBuilderRouter);
+app.use("/api/v1/professional", professionalRouter);
+app.use("/api/v1/investor", investorRouter);
 
 export default app;
