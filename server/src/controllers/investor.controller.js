@@ -62,6 +62,137 @@ const createInvestorProfile = asyncHandler(async (req, res) => {
     );
 });
 
+const getInvestorProfile = asyncHandler(async (req, res) => {
+    const investorProfile = await InvestorProfile.findOne({
+        user: req.user._id,
+    });
+
+    if (!investorProfile) {
+        throw new ApiError(
+            404,
+            "Investor profile not found"
+        );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            investorProfile,
+            "Investor profile fetched successfully"
+        )
+    );
+});
+
+const updateInvestorProfile = asyncHandler(async (req, res) => {
+    const {
+        preferredIndustries,
+        preferredStages,
+        bio,
+        linkedin,
+        website,
+        portfolio,
+    } = req.body;
+
+    const investorProfile = await InvestorProfile.findOne({
+        user: req.user._id,
+    });
+
+    if (!investorProfile) {
+        throw new ApiError(
+            404,
+            "Investor profile not found"
+        );
+    }
+
+    if (bio !== undefined && !bio.trim()) {
+        throw new ApiError(
+            400,
+            "Bio cannot be empty"
+        );
+    }
+
+    investorProfile.preferredIndustries =
+        preferredIndustries ??
+        investorProfile.preferredIndustries;
+
+    investorProfile.preferredStages =
+        preferredStages ??
+        investorProfile.preferredStages;
+
+    investorProfile.bio =
+        bio ?? investorProfile.bio;
+
+    investorProfile.linkedin =
+        linkedin?.toLowerCase() ??
+        investorProfile.linkedin;
+
+    investorProfile.website =
+        website?.toLowerCase() ??
+        investorProfile.website;
+
+    investorProfile.portfolio =
+        portfolio?.toLowerCase() ??
+        investorProfile.portfolio;
+
+    await investorProfile.save();
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            investorProfile,
+            "Investor profile updated successfully"
+        )
+    );
+});
+
+const deleteInvestorProfile = asyncHandler(async (req, res) => {
+    const investorProfile = await InvestorProfile.findOne({
+        user: req.user._id,
+    });
+
+    if (!investorProfile) {
+        throw new ApiError(
+            404,
+            "Investor profile not found"
+        );
+    }
+
+    // TODO:
+    // Prevent deletion if the user has pending investment requests.
+
+    await investorProfile.deleteOne();
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(
+            404,
+            "User not found"
+        );
+    }
+
+    user.roles = user.roles.filter(
+        (role) => role !== "investor"
+    );
+
+    user.activeRole = user.roles[0] ?? null;
+
+    await user.save({
+        validateBeforeSave: false,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                roles: user.roles,
+                activeRole: user.activeRole,
+            },
+            "Investor profile deleted successfully"
+        )
+    );
+});
+
 export {
     createInvestorProfile,
     getInvestorProfile,
