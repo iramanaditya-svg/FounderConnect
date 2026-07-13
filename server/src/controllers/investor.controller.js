@@ -62,4 +62,9 @@ const createInvestorProfile = asyncHandler(async (req, res) => {
     );
 });
 
-export { createInvestorProfile };
+export {
+    createInvestorProfile,
+    getInvestorProfile,
+    updateInvestorProfile,
+    deleteInvestorProfile,
+};

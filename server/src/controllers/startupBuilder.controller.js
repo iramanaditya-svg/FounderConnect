@@ -183,15 +183,15 @@ const deleteStartupBuilderProfile = asyncHandler(async (req, res) => {
     }
 
     const startupCount = await Startup.countDocuments({
-        founder: req.user._id,
-    });
+    founder: req.user._id,
+});
 
-    if (startupCount > 0) {
-        throw new ApiError(
-            400,
-            "Delete all your startups before deleting your Startup Builder profile"
-        );
-    }
+if (startupCount > 0) {
+    throw new ApiError(
+        400,
+        "Transfer or delete all your startups before deleting your Startup Builder profile."
+    );
+}
 
     await startupBuilderProfile.deleteOne();
 
