@@ -10,6 +10,7 @@ user: {
 headline: {
     type: String,
     trim: true,
+    required: [true, "Headline is required"],
     maxlength: 100,
 },
 experience: {
@@ -29,14 +30,21 @@ website: {
 location: {
     type: String,
     trim: true,
+    required: [true, "Location is required"],
 },
 bio: {
     type: String,
     trim: true,
+    required: [true, "Bio is required"],
     maxlength: 1000,
 },
 },{
     timestamps: true,
 });
 
-export default mongoose.model("StartupBuilderProfile", startupBuilderProfileSchema);
+const StartupBuilderProfile = mongoose.model(
+    "StartupBuilderProfile",
+    startupBuilderProfileSchema
+);
+
+export default StartupBuilderProfile;

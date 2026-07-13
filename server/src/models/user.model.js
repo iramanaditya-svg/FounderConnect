@@ -64,21 +64,6 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    profileCompletion: {
-    startup_builder: {
-        type: Boolean,
-        default: false,
-    },
-    professional: {
-        type: Boolean,
-        default: false,
-    },
-    investor: {
-        type: Boolean,
-        default: false,
-    },
-},
-
     isEmailVerified: {
       type: Boolean,
       default: false,
