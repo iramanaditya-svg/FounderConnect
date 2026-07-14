@@ -4,6 +4,7 @@ import User from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { JobApplication } from "../models/jobApplication.model.js";
 
 const createProfessionalProfile = asyncHandler(async (req, res) => {
     const {
@@ -189,8 +190,23 @@ const deleteProfessionalProfile = asyncHandler(async (req, res) => {
         );
     }
 
-    // TODO:
-    // Prevent deletion if the user has active job applications.
+    const hasActiveApplications =
+    await JobApplication.exists({
+        applicant: req.user._id,
+        status: {
+            $in: [
+                "pending",
+                "shortlisted",
+            ],
+        },
+    });
+
+if (hasActiveApplications) {
+    throw new ApiError(
+        400,
+        "You cannot delete your Professional profile while you have active job applications"
+    );
+}
 
     await professionalProfile.deleteOne();
 

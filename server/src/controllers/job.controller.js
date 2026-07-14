@@ -6,6 +6,7 @@ import Startup from "../models/startup.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { JobApplication } from "../models/jobApplication.model.js";
 
 const createJob = asyncHandler(async (req, res) => {
     const { startupId } = req.params;
@@ -305,8 +306,23 @@ const deleteJob = asyncHandler(async (req, res) => {
         );
     }
 
-    // TODO:
-    // Prevent deletion if the job has pending applications.
+    const hasActiveApplications =
+        await JobApplication.exists({
+            job: job._id,
+            status: {
+                $in: [
+                    "pending",
+                    "shortlisted",
+                ],
+            },
+        });
+
+    if (hasActiveApplications) {
+        throw new ApiError(
+            400,
+            "You cannot delete a job with active applications"
+        );
+    }
 
     await job.deleteOne();
 

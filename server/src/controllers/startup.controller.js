@@ -6,107 +6,109 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
+import { JobApplication } from "../models/jobApplication.model.js";
+import { Job } from "../models/job.model.js";
 
 
 const createStartup = asyncHandler(async (req, res) => {
-const {
-    name,
-    tagline,
-    description,
-    industry,
-    stage,
-    website,
-    location,
-} = req.body;
+    const {
+        name,
+        tagline,
+        description,
+        industry,
+        stage,
+        website,
+        location,
+    } = req.body;
 
-if (
-    [name, description, stage, location].some(
-        (field) => !field?.trim()
-    )
-) {
-    throw new ApiError(
-        400,
-        "Name, description, stage and location are required"
-    );
-}
+    if (
+        [name, description, stage, location].some(
+            (field) => !field?.trim()
+        )
+    ) {
+        throw new ApiError(
+            400,
+            "Name, description, stage and location are required"
+        );
+    }
 
-if (!industry || industry.length === 0) {
-    throw new ApiError(
-        400,
-        "At least one industry is required"
-    );
-}
+    if (!industry || industry.length === 0) {
+        throw new ApiError(
+            400,
+            "At least one industry is required"
+        );
+    }
 
-const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id);
 
-if (!user) {
-    throw new ApiError(404, "User not found");
-}
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
 
-if (user.activeRole !== "startup_builder") {
-    throw new ApiError(
-        403,
-        "Switch to Startup Builder role first"
-    );
-}
+    if (user.activeRole !== "startup_builder") {
+        throw new ApiError(
+            403,
+            "Switch to Startup Builder role first"
+        );
+    }
 
-const startupBuilderProfile =
-    await StartupBuilderProfile.findOne({
-        user: user._id,
+    const startupBuilderProfile =
+        await StartupBuilderProfile.findOne({
+            user: user._id,
+        });
+
+    if (!startupBuilderProfile) {
+        throw new ApiError(
+            400,
+            "Complete your Startup Builder profile first"
+        );
+    }
+    const existingStartup = await Startup.findOne({
+        founder: user._id,
+        name: name.trim(),
     });
 
-if (!startupBuilderProfile) {
-    throw new ApiError(
-        400,
-        "Complete your Startup Builder profile first"
+    if (existingStartup) {
+        throw new ApiError(
+            409,
+            "Startup with this name already exists."
+        );
+    }
+
+    const startup = await Startup.create({
+        name,
+        tagline,
+        description,
+        industry,
+        stage,
+        website,
+        location,
+
+        founder: user._id,
+
+        foundingMembers: [
+            {
+                user: user._id,
+                role: "founder",
+                status: "accepted",
+            },
+        ],
+    });
+
+    if (!startup) {
+        throw new ApiError(
+            500,
+            "Something went wrong while creating startup"
+        );
+    }
+
+    return res.status(201).json(
+        new ApiResponse(
+            201,
+            startup,
+            "Startup created successfully"
+        )
     );
-}
-const existingStartup = await Startup.findOne({
-    founder: user._id,
-    name: name.trim(),
-});
-
-if (existingStartup) {
-    throw new ApiError(
-        409,
-        "Startup with this name already exists."
-    );
-}
-
-const startup = await Startup.create({
-    name,
-    tagline,
-    description,
-    industry,
-    stage,
-    website,
-    location,
-
-    founder: user._id,
-
-    foundingMembers: [
-        {
-            user: user._id,
-            role: "founder",
-            status: "accepted",
-        },
-    ],
-});
-
-if (!startup) {
-    throw new ApiError(
-        500,
-        "Something went wrong while creating startup"
-    );
-}
-
-return res.status(201).json(
-    new ApiResponse(
-        201,
-        startup,
-        "Startup created successfully"
-    )
-);
 
 });
 
@@ -341,8 +343,29 @@ const deleteStartup = asyncHandler(async (req, res) => {
         );
     }
 
-    // TODO:
-    // Prevent deletion if the startup has pending job applications.
+    const jobIds = await Job.find({
+        startup: startup._id,
+    }).distinct("_id");
+
+    const hasActiveApplications =
+        await JobApplication.exists({
+            job: {
+                $in: jobIds,
+            },
+            status: {
+                $in: [
+                    "pending",
+                    "shortlisted",
+                ],
+            },
+        });
+
+    if (hasActiveApplications) {
+        throw new ApiError(
+            400,
+            "You cannot delete a startup with active job applications"
+        );
+    }
 
     // TODO:
     // Prevent deletion if the startup has pending investment requests.
