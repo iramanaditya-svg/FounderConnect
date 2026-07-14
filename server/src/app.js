@@ -8,6 +8,7 @@ import professionalRouter from "./routes/professional.routes.js";
 import investorRouter from "./routes/investor.routes.js";
 import startupRouter from "./routes/startup.routes.js";
 import jobRouter from "./routes/job.routes.js";
+import jobApplicationRouter from "./routes/jobApplication.routes.js";
 const app = express();
 
 app.use(cors({
@@ -34,5 +35,6 @@ app.use("/api/v1/professional", professionalRouter);
 app.use("/api/v1/investor", investorRouter);
 app.use("/api/v1/startups", startupRouter);
 app.use("/api/v1", jobRouter);
+app.use("/api/v1", jobApplicationRouter);
 
 export default app;
