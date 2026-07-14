@@ -4,16 +4,17 @@ import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { use } from "react";
+
 const generateAccessAndRefreshToken = async (userId) => {
-    try{
-       const user = await User.findById(userId);
-       const accessToken = user.generateAccessToken();
-       const refreshToken = user.generateRefreshToken();
+    try {
+        const user = await User.findById(userId);
+        const accessToken = user.generateAccessToken();
+        const refreshToken = user.generateRefreshToken();
 
-       user.refreshToken = refreshToken;
-       await user.save({validateBeforeSave: false});
+        user.refreshToken = refreshToken;
+        await user.save({ validateBeforeSave: false });
 
-       return {accessToken, refreshToken};
+        return { accessToken, refreshToken };
     } catch (error) {
         throw new ApiError(500, "Internal Server Error");
     }
@@ -64,7 +65,7 @@ const registerUser = asyncHandler(async (req, res) => {
             "Something went wrong while registering the user"
         );
     }
-    
+
     return res.status(201).json(
         new ApiResponse(
             201,
@@ -92,7 +93,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const user = await User.findOne({
         $or: [{ username }, { email }]
     });
-    
+
     if (!user) {
         throw new ApiError(
             404,
@@ -109,29 +110,29 @@ const loginUser = asyncHandler(async (req, res) => {
         );
     }
 
-   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+    const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
     const loggedInUser = await User.findById(user._id).select(
         "-password -refreshToken"
-    ); 
-   const options = {
+    );
+    const options = {
         httpOnly: true,
         secure: true,
-   };
+    };
 
-   return res.status(200)
-    .cookie("refreshToken", refreshToken, options)
-    .cookie("accessToken", accessToken, options)
-    .json(
-        new ApiResponse(
-            200,
-            {
-                user: loggedInUser,
-                accessToken,
-                refreshToken
-            },
-            "User logged in successfully"
+    return res.status(200)
+        .cookie("refreshToken", refreshToken, options)
+        .cookie("accessToken", accessToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedInUser,
+                    accessToken,
+                    refreshToken
+                },
+                "User logged in successfully"
+            )
         )
-    )
 })
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -166,7 +167,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         );
 });
 
-const refreshAccessToken = asyncHandler(async (req, res) => { 
+const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
 
     if (!incomingRefreshToken) {
@@ -183,14 +184,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const user = await User.findById(decodedToken?._id);
 
-    if(!user || user .refreshToken !== incomingRefreshToken) {
+    if (!user || user.refreshToken !== incomingRefreshToken) {
         throw new ApiError(
             401,
             "Invalid refresh token"
         );
     }
 
-   const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id);
+    const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id);
     const options = {
         httpOnly: true,
         secure: true,
@@ -202,7 +203,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                { 
+                {
                     accessToken,
                     refreshToken: newRefreshToken
                 },
@@ -214,7 +215,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changecurrentUserPassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
-    if(newPassword!== confirmPassword) {
+    if (newPassword !== confirmPassword) {
         throw new ApiError(
             400,
             "New password and confirm password do not match"
@@ -275,15 +276,48 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             new: true,
         }
     ).select("-password -refreshToken");
-    
-    return res.status(200).json(    
-    new ApiResponse(
-        200,
-        user,
-        "Account details updated successfully"
-    )
+
+    if (username) {
+        const existingUser = await User.findOne({
+            username: username.toLowerCase(),
+            _id: {
+                $ne: req.user._id,
+            },
+        });
+
+        if (existingUser) {
+            throw new ApiError(
+                409,
+                "Username is already taken"
+            );
+        }
+    }
+
+    if (email) {
+        const existingUser = await User.findOne({
+            email: email.toLowerCase(),
+            _id: {
+                $ne: req.user._id,
+            },
+        });
+
+        if (existingUser) {
+            throw new ApiError(
+                409,
+                "Email is already registered"
+            );
+        }
+    }
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            user,
+            "Account details updated successfully"
+        )
     );
 });
+
+
 
 const selectRole = asyncHandler(async (req, res) => {
     const { role } = req.body;
@@ -330,7 +364,7 @@ const selectRole = asyncHandler(async (req, res) => {
         )
     );
 });
- 
+
 
 export {
     registerUser,

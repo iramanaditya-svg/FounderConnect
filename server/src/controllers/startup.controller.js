@@ -5,6 +5,8 @@ import User from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import mongoose from "mongoose";
+
 
 const createStartup = asyncHandler(async (req, res) => {
 const {
@@ -108,6 +110,261 @@ return res.status(201).json(
 
 });
 
+const getMyStartups = asyncHandler(async (req, res) => {
+
+    const startups = await Startup.find({
+        founder: req.user._id,
+    }).sort({
+        createdAt: -1,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                startupCount: startups.length,
+                startups,
+            },
+            "Startups fetched successfully"
+        )
+    );
+});
+
+const getStartupById = asyncHandler(async (req, res) => {
+    const { startupId } = req.params;
+
+    if (!mongoose.isValidObjectId(startupId)) {
+        throw new ApiError(
+            400,
+            "Invalid startup ID"
+        );
+    }
+
+    const startup = await Startup.findById(startupId)
+        .populate(
+            "founder",
+            "fullName username profilePicture"
+        )
+        .populate(
+            "foundingMembers.user",
+            "fullName username profilePicture"
+        );
+
+    if (!startup) {
+        throw new ApiError(
+            404,
+            "Startup not found"
+        );
+    }
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            startup,
+            "Startup fetched successfully"
+        )
+    );
+});
+
+const updateStartup = asyncHandler(async (req, res) => {
+    const { startupId } = req.params;
+
+    if (!mongoose.isValidObjectId(startupId)) {
+        throw new ApiError(
+            400,
+            "Invalid startup ID"
+        );
+    }
+
+    const {
+        name,
+        tagline,
+        description,
+        industry,
+        stage,
+        website,
+        location,
+        logo,
+        coverImage,
+        pitchDeck,
+        openToInvestors,
+        currentValuation,
+        fundingGoal,
+        equityOffered,
+        status,
+    } = req.body;
+
+    const startup = await Startup.findById(startupId);
+
+    if (!startup) {
+        throw new ApiError(
+            404,
+            "Startup not found"
+        );
+    }
+
+    if (startup.founder.toString() !== req.user._id.toString()) {
+        throw new ApiError(
+            403,
+            "You are not authorized to update this startup"
+        );
+    }
+
+    if (name !== undefined && !name.trim()) {
+        throw new ApiError(
+            400,
+            "Startup name cannot be empty"
+        );
+    }
+
+    if (description !== undefined && !description.trim()) {
+        throw new ApiError(
+            400,
+            "Description cannot be empty"
+        );
+    }
+
+    if (location !== undefined && !location.trim()) {
+        throw new ApiError(
+            400,
+            "Location cannot be empty"
+        );
+    }
+
+    if (status === "funded") {
+        throw new ApiError(
+            400,
+            "Startup status cannot be updated to funded manually"
+        );
+    }
+
+    if (name) {
+        const existingStartup = await Startup.findOne({
+            name: name.trim(),
+            _id: {
+                $ne: startupId,
+            },
+        });
+
+        if (existingStartup) {
+            throw new ApiError(
+                409,
+                "A startup with this name already exists"
+            );
+        }
+    }
+
+    startup.name =
+        name ?? startup.name;
+
+    startup.tagline =
+        tagline ?? startup.tagline;
+
+    startup.description =
+        description ?? startup.description;
+
+    startup.industry =
+        industry ?? startup.industry;
+
+    startup.stage =
+        stage ?? startup.stage;
+
+    startup.website =
+        website?.toLowerCase() ??
+        startup.website;
+
+    startup.location =
+        location ?? startup.location;
+
+    startup.logo =
+        logo ?? startup.logo;
+
+    startup.coverImage =
+        coverImage ?? startup.coverImage;
+
+    startup.pitchDeck =
+        pitchDeck ?? startup.pitchDeck;
+
+    startup.openToInvestors =
+        openToInvestors ??
+        startup.openToInvestors;
+
+    startup.currentValuation =
+        currentValuation ??
+        startup.currentValuation;
+
+    startup.fundingGoal =
+        fundingGoal ??
+        startup.fundingGoal;
+
+    startup.equityOffered =
+        equityOffered ??
+        startup.equityOffered;
+
+    startup.status =
+        status ?? startup.status;
+
+    await startup.save();
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            startup,
+            "Startup updated successfully"
+        )
+    );
+});
+
+const deleteStartup = asyncHandler(async (req, res) => {
+    const { startupId } = req.params;
+
+    if (!mongoose.isValidObjectId(startupId)) {
+        throw new ApiError(
+            400,
+            "Invalid startup ID"
+        );
+    }
+
+    const startup = await Startup.findById(startupId);
+
+    if (!startup) {
+        throw new ApiError(
+            404,
+            "Startup not found"
+        );
+    }
+
+    if (startup.founder.toString() !== req.user._id.toString()) {
+        throw new ApiError(
+            403,
+            "You are not authorized to delete this startup"
+        );
+    }
+
+    // TODO:
+    // Prevent deletion if the startup has pending job applications.
+
+    // TODO:
+    // Prevent deletion if the startup has pending investment requests.
+
+    // TODO:
+    // Prevent deletion if the startup has active conversations.
+
+    await startup.deleteOne();
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {},
+            "Startup deleted successfully"
+        )
+    );
+});
+
 export {
     createStartup,
+    getMyStartups,
+    getStartupById,
+    updateStartup,
+    deleteStartup
 };

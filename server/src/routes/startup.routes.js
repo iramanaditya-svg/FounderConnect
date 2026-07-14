@@ -10,4 +10,14 @@ router
     .route("/")
     .post(verifyJWT, createStartup);
 
+router
+    .route("/my-startups")
+    .get(verifyJWT, getMyStartups);
+
+router
+    .route("/:startupId")
+    .get(verifyJWT, getStartupById)
+    .patch(verifyJWT, updateStartup)
+    .delete(verifyJWT, deleteStartup);
+
     export default router;
