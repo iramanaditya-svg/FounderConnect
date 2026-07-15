@@ -8,6 +8,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { JobApplication } from "../models/jobApplication.model.js";
 import { Job } from "../models/job.model.js";
+import { Investment } from "../models/investment.model.js";
 
 
 const createStartup = asyncHandler(async (req, res) => {
@@ -367,8 +368,23 @@ const deleteStartup = asyncHandler(async (req, res) => {
         );
     }
 
-    // TODO:
-    // Prevent deletion if the startup has pending investment requests.
+const hasActiveInvestmentRequests =
+    await Investment.exists({
+        startup: startup._id,
+        status: {
+            $in: [
+                "pending",
+                "accepted",
+            ],
+        },
+    });
+
+if (hasActiveInvestmentRequests) {
+    throw new ApiError(
+        400,
+        "You cannot delete a startup with active investment requests"
+    );
+}
 
     // TODO:
     // Prevent deletion if the startup has active conversations.

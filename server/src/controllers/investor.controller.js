@@ -4,6 +4,7 @@ import User from "../models/user.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { Investment } from "../models/investment.model.js";
 
 const createInvestorProfile = asyncHandler(async (req, res) => {
     const {
@@ -157,8 +158,23 @@ const deleteInvestorProfile = asyncHandler(async (req, res) => {
         );
     }
 
-    // TODO:
-    // Prevent deletion if the user has pending investment requests.
+const hasActiveInvestments =
+    await Investment.exists({
+        investor: req.user._id,
+        status: {
+            $in: [
+                "pending",
+                "accepted",
+            ],
+        },
+    });
+
+if (hasActiveInvestments) {
+    throw new ApiError(
+        400,
+        "You cannot delete your Investor profile while you have active investment requests"
+    );
+}
 
     await investorProfile.deleteOne();
 
