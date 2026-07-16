@@ -2,7 +2,13 @@ import { Router } from "express";
 
 import verifyJWT from "../middlewares/auth.middleware.js";
 
-import { createStartup } from "../controllers/startup.controller.js";
+import {
+    createStartup,
+    getMyStartups,
+    getStartupById,
+    updateStartup,
+    deleteStartup
+ } from "../controllers/startup.controller.js";
 
 const router = Router();
 

@@ -30,7 +30,7 @@ router.route("/logout").post(
 
 router.route("/change-password").post(
     verifyJWT,
-    changecurrentUserPassword
+    changeCurrentPassword
 );
 
 router.route("/current-user").get(

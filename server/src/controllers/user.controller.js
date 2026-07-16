@@ -3,7 +3,7 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { use } from "react";
+
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -212,9 +212,15 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         );
 });
 
-const changecurrentUserPassword = asyncHandler(async (req, res) => {
+const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
+    if (currentPassword === newPassword) {
+    throw new ApiError(
+        400,
+        "New password must be different from the current password"
+    );
+}
     if (newPassword !== confirmPassword) {
         throw new ApiError(
             400,
@@ -371,7 +377,7 @@ export {
     loginUser,
     logoutUser,
     refreshAccessToken,
-    changecurrentUserPassword,
+    changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
     selectRole

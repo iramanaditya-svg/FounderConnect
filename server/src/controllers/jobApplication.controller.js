@@ -341,7 +341,7 @@ const withdrawApplication = asyncHandler(async (req, res) => {
         )
     );
 });
-export default {
+export {
     applyForJob,
     getMyApplications,
     getJobApplicants,
