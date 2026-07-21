@@ -1,7 +1,7 @@
+import Login from "./pages/Login";
+
 function App() {
-    return (
-        <h1>FounderConnect</h1>
-    );
+  return <Login />;
 }
 
 export default App;
