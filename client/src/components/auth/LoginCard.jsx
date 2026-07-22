@@ -47,12 +47,12 @@ function LoginCard() {
                 />
             </div>
             <div className="mb-6 flex justify-end">
-                <button className="text-sm text-violet-400 transition hover:text-violet-300">
+                <button className="text-sm text-violet-400 transition hover:text-violet-300 hover:cursor-pointer">
                     Forgot Password?
                 </button>
             </div>
             <button
-                className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-3 font-semibold transition duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-500/30"
+                className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-3 font-semibold transition duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-500/30 hover:cursor-pointer"
             >
                 Sign In
             </button>
