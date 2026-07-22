@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+import errorHandler from "./middlewares/error.middleware.js";
+
 import userRouter from "./routes/user.routes.js";
 import startupBuilderRouter from "./routes/startupBuilder.routes.js";
 import professionalRouter from "./routes/professional.routes.js";
@@ -39,4 +41,6 @@ app.use("/api/v1", jobRouter);
 app.use("/api/v1", jobApplicationRouter);
 app.use("/api/v1", investmentRouter);
 
+
+app.use(errorHandler);
 export default app;

@@ -6,12 +6,42 @@ import logo from "../../assets/logo.png";
 function RegisterCard() {
     const navigate = useNavigate();
 
+    const validateForm = () => {
+
+    if((!formData.fullName.trim()) && (!formData.username.trim()) && (!formData.email.trim()) && (!formData.password.trim())){
+        return "All fields are required";
+    }
+    else{
+
+    if (!formData.fullName.trim()) {
+        return "Full Name is required";
+    }
+
+    if (!formData.username.trim()) {
+        return "Username is required";
+    }
+
+    if (!formData.email.trim()) {
+        return "Email is required";
+    }
+
+    if (!formData.password.trim()) {
+        return "Password is required";
+    }
+    }
+    return null;
+};
+
     const [formData, setFormData] = useState({
         fullName: "",
         username: "",
         email: "",
         password: "",
     });
+
+    const [error, setError] = useState("");
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,15 +53,30 @@ function RegisterCard() {
     };
 
     const handleSubmit = async (e) => {
-
         e.preventDefault();
 
-        const response = await registerUser(formData);
+        const validationError = validateForm();
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
 
-        console.log(response);
+        setError("");
+
+        try {
+            const response = await registerUser(formData);
+
+            console.log(response);
+
+        } catch (error) {
+
+            console.error(error);
+
+            setError(error.response?.data?.message || "Something went wrong");
+        }
     };
     return (
-        <div className=" w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl bg-white/[0.06] border-white/15 shadow-2xl shadow-violet-500/10">
+        <div className="p-8 w-full max-w-md rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl bg-white/[0.06] border-white/15 shadow-2xl shadow-violet-500/10">
 
             <div className="mb-8 flex justify-center">
                 <img
@@ -50,6 +95,15 @@ function RegisterCard() {
                 <p className="mt-2 text-white/60">
                     Sign up to start building amazing startups.
                 </p>
+                <br />
+
+
+
+    {error && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            {error}
+        </div>
+    )}
 
             </div>
 

@@ -18,19 +18,18 @@ function Register() {
 
 
 
-      <div className="relative z-10 mx-auto flex h-screen max-w-7xl px-8 lg:px-20">
+<div className="relative z-10 mx-auto flex h-screen max-w-7xl px-8 lg:px-20">
 
+    <div className="hidden lg:flex w-[75%] h-screen sticky top-0 items-center">
+        <Hero />
+    </div>
 
-<div className="hidden lg:flex w-[75%] h-screen items-center sticky top-0">
-  <Hero />
-</div>
+    <div className="w-full lg:w-[50%] h-screen overflow-y-auto">
+        <div className="flex justify-center py-10">
+            <RegisterCard />
+        </div>
+    </div>
 
-
-<div className="flex w-full lg:w-[50%] h-screen overflow-y-auto justify-center">
-  <div className="flex min-h-screen items-center py-10">
-    <RegisterCard />
-  </div>
-</div>
 </div>
 
       </div>
