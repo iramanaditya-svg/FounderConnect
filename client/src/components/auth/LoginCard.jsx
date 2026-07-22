@@ -1,4 +1,6 @@
 import logo from "../../assets/logo.png";
+import { Link } from "react-router-dom";
+
 
 function LoginCard() {
     return (
@@ -56,6 +58,11 @@ function LoginCard() {
             >
                 Sign In
             </button>
+            <div className="mt-3 mb-6 flex justify-end">
+                <Link to="/" className="text-sm text-violet-400 transition hover:text-violet-300 hover:cursor-pointer">
+                    Do not have an account? Create one
+                </Link>
+            </div>
 
         </div>
     );

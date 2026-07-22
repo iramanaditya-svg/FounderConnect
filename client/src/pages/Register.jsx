@@ -1,6 +1,7 @@
 import Hero from "../components/hero/Hero";
 import RegisterCard from "../components/auth/RegisterCard";
 
+
 function Register() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#050816] text-white">
