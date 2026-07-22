@@ -1,7 +1,35 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { registerUser } from "../../services/api/auth.service";
 import logo from "../../assets/logo.png";
-import { Link } from "react-router-dom";
 
 function RegisterCard() {
+    const navigate = useNavigate();
+
+    const [formData, setFormData] = useState({
+        fullName: "",
+        username: "",
+        email: "",
+        password: "",
+    });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+
+        const response = await registerUser(formData);
+
+        console.log(response);
+    };
     return (
         <div className=" w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl bg-white/[0.06] border-white/15 shadow-2xl shadow-violet-500/10">
 
@@ -25,56 +53,72 @@ function RegisterCard() {
 
             </div>
 
+            <form onSubmit={handleSubmit}>
+                <div className="mb-5">
+                    <label className="mb-2 block text-sm font-medium text-white/80">
+                        Full Name
+                    </label>
 
-            <div className="mb-5">
-                <label className="mb-2 block text-sm font-medium text-white/80">
-                    Full Name
-                </label>
+                    <input
+                        type="text"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        placeholder="Enter your full name"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
+                    />
+                </div>
+                <div className="mb-3">
+                    <label className="mb-2 block text-sm font-medium text-white/80">
+                        Username
+                    </label>
 
-                <input
-                    type="string"
-                    placeholder="Enter your full name"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
-                />
-            </div>
-            <div className="mb-3">
-                <label className="mb-2 block text-sm font-medium text-white/80">
-                    Username
-                </label>
+                    <input
+                        type="text"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        placeholder="Enter your username"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
+                    />
+                </div>
+                <div className="mb-5">
+                    <label className="mb-2 block text-sm font-medium text-white/80">
+                        Email Address
+                    </label>
 
-                <input
-                    placeholder="Enter your username"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
-                />
-            </div>
-            <div className="mb-5">
-                <label className="mb-2 block text-sm font-medium text-white/80">
-                    Email Address
-                </label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Enter your email"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
+                    />
+                </div>
+                <div className="mb-3">
+                    <label className="mb-2 block text-sm font-medium text-white/80">
+                        Password
+                    </label>
 
-                <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
-                />
-            </div>
-            <div className="mb-3">
-                <label className="mb-2 block text-sm font-medium text-white/80">
-                    Password
-                </label>
+                    <input
+                        type="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="Enter your password"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
+                    />
+                </div>
 
-                <input
-                    type="password"
-                    placeholder="Enter your password"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition-all duration-300 focus:border-violet-500 focus:bg-white/10"
-                />
-            </div>
+                <button
+                    type="submit"
+                    className="w-full mt-3 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-3 font-semibold transition duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-500/30 hover:cursor-pointer"
+                >
+                    Sign Up
+                </button>
 
-            <button
-                className="w-full mt-3 rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-3 font-semibold transition duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-violet-500/30 hover:cursor-pointer"
-            >
-                Sign Up
-            </button>
+            </form>
             <div className="mb-2 flex justify-end">
                 <Link to="/login" className="text-sm mt-3 text-violet-400 transition hover:cursor-pointer hover:text-violet-300">
                     Already have an account? Sign In
