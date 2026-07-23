@@ -68,6 +68,10 @@ function RegisterCard() {
 
             console.log(response);
 
+            navigate("/select-role", {
+            replace: true,
+});
+
         } catch (error) {
 
             console.error(error);
@@ -95,7 +99,6 @@ function RegisterCard() {
                 <p className="mt-2 text-white/60">
                     Sign up to start building amazing startups.
                 </p>
-                <br />
 
 
 
