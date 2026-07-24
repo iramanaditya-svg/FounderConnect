@@ -215,7 +215,7 @@ function SelectRole() {
                             transition={{ duration: 0.35 }}
                             onClick={handleContinue}
                             disabled={!selectedRole}
-                            className="mt-10 text-xl rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 px-20 py-2 font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="mt-10 text-xl hover:cursor-pointer rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 px-20 py-2 font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-violet-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Continue
                         </motion.button>
