@@ -33,7 +33,8 @@ function SelectRole() {
                 role: selectedRole,
             });
 
-            navigate("/complete-profile");
+navigate(`/${selectedRole}/complete-profile`);
+
         } catch (error) {
             console.error(error);
         }

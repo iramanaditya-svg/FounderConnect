@@ -1,6 +1,11 @@
+import { useParams, Navigate } from "react-router-dom";
+
 import ProfessionalForm from "../components/completeProfile/ProfessionalForm";
+// import StartupBuilderForm from "../components/completeProfile/StartupBuilderForm";
+// import InvestorForm from "../components/completeProfile/InvestorForm";
 
 function CompleteProfile() {
+    const { role } = useParams();
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#050816]">
 
@@ -46,7 +51,17 @@ function CompleteProfile() {
 
                 </div>
 
-                <ProfessionalForm />
+{
+    role === "professional" ? (
+        <ProfessionalForm />
+    ) : role === "startup_builder" ? (
+        <StartupBuilderForm />
+    ) : role === "investor" ? (
+        <InvestorForm />
+    ) : (
+        <Navigate to="/" replace />
+    )
+}
 
             </div>
         </div>

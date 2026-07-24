@@ -3,6 +3,8 @@ function InputField({
     required = false,
     placeholder,
     type = "text",
+    value,
+    onChange,
 }) {
     return (
         <div>
@@ -16,6 +18,8 @@ function InputField({
 
             <input
                 type={type}
+                value={value}
+                onChange={onChange}
                 placeholder={placeholder}
                 className="
                     w-full
