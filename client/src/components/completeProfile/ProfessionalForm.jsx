@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import InputField from "../ui/InputField";
-
+import TagInput from "../ui/TagInput";
+import { useState } from "react";
 function ProfessionalForm() {
+    const [skills, setSkills] = useState([]);
     return (
         <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -63,17 +65,12 @@ function ProfessionalForm() {
 
                         </div>
 
-                        <div>
-                            <label className="mb-2 block text-sm font-medium text-gray-300">
-                                Skills *
-                            </label>
-
-                            <input
-                                type="text"
-                                placeholder="React, Node.js..."
-                                className="w-full rounded-xl border border-white/10 bg-[#111827] px-4 py-3 text-white outline-none transition focus:border-blue-500"
-                            />
-                        </div>
+                        <TagInput
+                            label="Skills"
+                            required
+                            value={skills}
+                            onChange={setSkills}
+                        />
 
                     </div>
 
