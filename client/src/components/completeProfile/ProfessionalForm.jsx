@@ -3,6 +3,8 @@ import InputField from "../ui/InputField";
 import TagInput from "../ui/TagInput";
 import { useState } from "react";
 import SelectField from "../ui/SelectField";
+
+import { createProfessionalProfile } from "../../services/api/professional.service";
 function ProfessionalForm() {
     const [formData, setFormData] = useState({
         headline: "",
@@ -45,13 +47,16 @@ const handleSubmit = async (e) => {
 
     if (!validateForm()) return;
 
-try {
-    const response = await completeProfessionalProfile(formData);
+    try {
+        const response =
+            await createProfessionalProfile(formData);
 
-    console.log(response.data);
-} catch (error) {
-    console.error(error);
-}
+        console.log(response);
+
+        navigate("/professional/dashboard");
+    } catch (error) {
+        console.error(error);
+    }
 };
     return (
         <motion.div

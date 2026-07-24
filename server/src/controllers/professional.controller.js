@@ -49,7 +49,6 @@ const createProfessionalProfile = asyncHandler(async (req, res) => {
     const professionalProfile = await ProfessionalProfile.create({
         user: user._id,
         headline,
-        currentRole,
         skills,
         experience,
         education,
@@ -58,6 +57,14 @@ const createProfessionalProfile = asyncHandler(async (req, res) => {
         linkedin,
         portfolio,
     });
+
+    user.activeRole = "professional";
+
+user.isProfileCompleted = true;
+
+await user.save({
+    validateBeforeSave: false,
+});
 
     return res.status(201).json(
         new ApiResponse(
@@ -149,11 +156,9 @@ const updateProfessionalProfile = asyncHandler(async (req, res) => {
     professionalProfile.education =
         education ?? professionalProfile.education;
 
-    professionalProfile.location =
-        location ?? professionalProfile.location;
-
-    professionalProfile.bio =
-        bio ?? professionalProfile.bio;
+        professionalProfile.github =
+    github?.toLowerCase() ??
+    professionalProfile.github;
 
     professionalProfile.linkedin =
         linkedin?.toLowerCase() ??
@@ -222,6 +227,9 @@ if (hasActiveApplications) {
 
     user.activeRole = user.roles[0] ?? null;
 
+    if (user.roles.length === 0) {
+    user.isProfileCompleted = false;
+}
     await user.save({
         validateBeforeSave: false,
     });

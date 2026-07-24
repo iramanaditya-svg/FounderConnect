@@ -1,11 +1,32 @@
 import { useParams, Navigate } from "react-router-dom";
 
 import ProfessionalForm from "../components/completeProfile/ProfessionalForm";
-// import StartupBuilderForm from "../components/completeProfile/StartupBuilderForm";
+import StartupBuilderForm from "../components/completeProfile/StartupBuilderForm";
 // import InvestorForm from "../components/completeProfile/InvestorForm";
 
 function CompleteProfile() {
     const { role } = useParams();
+    const profileContent = {
+    professional: {
+        title: "Professional Profile",
+        description:
+            "Build your professional profile and let founders discover your talent.",
+    },
+
+    startup_builder: {
+        title: "Startup Builder Profile",
+        description:
+            "Showcase your experience, vision, and entrepreneurial journey to connect with founders, investors, and professionals.",
+    },
+
+    investor: {
+        title: "Investor Profile",
+        description:
+            "Create your investor profile and discover promising startups to invest in.",
+    },
+};
+
+const currentProfile = profileContent[role];
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#050816]">
 
@@ -34,19 +55,19 @@ function CompleteProfile() {
                 <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
 
                     <div>
-                        <h1 className="text-3xl font-bold text-white">
-                            Complete Profile
-                        </h1>
+<h1 className="text-3xl font-bold text-white">
+    Complete {currentProfile.title}
+</h1>
 
-                        <p className="mt-2 text-gray-400">
-                            Build your professional profile and let founders discover your talent.
-                        </p>
+<p className="mt-2 text-gray-400">
+    {currentProfile.description}
+</p>
                     </div>
 
                     <div className="rounded-full border border-blue-500/20 bg-blue-500/10 px-5 py-2">
-                        <span className="text-sm font-medium text-blue-300">
-                            Professional Profile
-                        </span>
+<span className="text-sm font-medium text-blue-300">
+    {currentProfile.title}
+</span>
                     </div>
 
                 </div>

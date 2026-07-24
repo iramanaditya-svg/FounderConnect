@@ -29,32 +29,26 @@ const professionalProfileSchema = new Schema(
             default: "",
         },
 
-        education: [
-            {
-                institute: {
-                    type: String,
-                    trim: true,
-                },
+        education: {
+    college: {
+        type: String,
+        trim: true,
+    },
 
-                degree: {
-                    type: String,
-                    trim: true,
-                },
+    degree: {
+        type: String,
+        trim: true,
+    },
 
-                fieldOfStudy: {
-                    type: String,
-                    trim: true,
-                },
+    branch: {
+        type: String,
+        trim: true,
+    },
 
-                startYear: {
-                    type: Number,
-                },
-
-                endYear: {
-                    type: Number,
-                },
-            },
-        ],
+    graduationYear: {
+        type: Number,
+    },
+},
 
         resume: {
             type: String,
