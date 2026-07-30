@@ -52,7 +52,9 @@ function StartupBuilderForm() {
 
             console.log(response);
 
-            // navigate("/startup-builder/dashboard");
+const user = JSON.parse(localStorage.getItem("user"));
+
+navigate(`/${user.activeRole}/dashboard`);
         } catch (error) {
             console.error(error);
         }
@@ -225,6 +227,10 @@ function StartupBuilderForm() {
                         <div>
                             <button
                                 type="button"
+                                    onClick={() => {
+        const user = JSON.parse(localStorage.getItem("user"));
+        navigate(`/${user.activeRole}/dashboard`);
+    }}
                                 className="text-sm font-medium text-gray-400 transition duration-300 hover:text-white hover:cursor-pointer"
                             >
                                 Skip for now

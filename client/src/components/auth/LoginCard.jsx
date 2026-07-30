@@ -3,6 +3,7 @@ import { loginUser } from "../../services/api/auth.service";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+
 function LoginCard() {
     const navigate = useNavigate();
 
@@ -24,13 +25,15 @@ function LoginCard() {
 
             const user = response.data.user;
 
-            if (!user.activeRole) {
-                navigate("/select-role");
-            } else if (!user.isProfileCompleted) {
-                navigate("/complete-profile");
-            } else {
-                navigate("/dashboard");
-            }
+localStorage.setItem("user", JSON.stringify(user));
+
+if (!user.activeRole) {
+    navigate("/select-role");
+} else if (!user.isProfileCompleted) {
+    navigate(`/${user.activeRole}/complete-profile`);
+} else {
+    navigate(`/${user.activeRole}/dashboard`);
+}
 
         } catch (error) {
             console.error(error);

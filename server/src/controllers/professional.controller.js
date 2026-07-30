@@ -39,12 +39,24 @@ const createProfessionalProfile = asyncHandler(async (req, res) => {
         user: user._id,
     });
 
-    if (existingProfile) {
-        throw new ApiError(
-            409,
+if (existingProfile) {
+    user.isProfileCompleted = true;
+
+    await user.save({
+        validateBeforeSave: false,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                professionalProfile: existingProfile,
+                user,
+            },
             "Professional profile already exists"
-        );
-    }
+        )
+    );
+}
 
     const professionalProfile = await ProfessionalProfile.create({
         user: user._id,
@@ -89,13 +101,16 @@ const getProfessionalProfile = asyncHandler(async (req, res) => {
         );
     }
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
+    return res.status(201).json(
+    new ApiResponse(
+        201,
+        {
             professionalProfile,
-            "Professional profile fetched successfully"
-        )
-    );
+            user,
+        },
+        "Professional profile created successfully"
+    )
+);
 });
 
 const updateProfessionalProfile = asyncHandler(async (req, res) => {

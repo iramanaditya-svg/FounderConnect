@@ -3,9 +3,10 @@ import InputField from "../ui/InputField";
 import TagInput from "../ui/TagInput";
 import { useState } from "react";
 import SelectField from "../ui/SelectField";
-
+import { useNavigate } from "react-router-dom";
 import { createProfessionalProfile } from "../../services/api/professional.service";
 function ProfessionalForm() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         headline: "",
         skills: [],
@@ -48,12 +49,22 @@ const handleSubmit = async (e) => {
     if (!validateForm()) return;
 
     try {
-        const response =
-            await createProfessionalProfile(formData);
+        const response = await createProfessionalProfile(formData);
 
-        console.log(response);
+        const updatedUser = {
+            ...JSON.parse(localStorage.getItem("user")),
+            ...response.data.user,
+            isProfileCompleted: true,
+        };
 
-        navigate("/professional/dashboard");
+        localStorage.setItem(
+            "user",
+            JSON.stringify(updatedUser)
+        );
+
+        navigate(`/${updatedUser.activeRole}/dashboard`, {
+            replace: true,
+        });
     } catch (error) {
         console.error(error);
     }
@@ -328,6 +339,10 @@ const handleSubmit = async (e) => {
                     <div>
                         <button
                             type="button"
+                                onClick={() => {
+        const user = JSON.parse(localStorage.getItem("user"));
+        navigate(`/${user.activeRole}/dashboard`);
+    }}
                             className="text-sm font-medium text-gray-400 transition duration-300 hover:text-white hover:cursor-pointer"
                         >
                             Skip for now

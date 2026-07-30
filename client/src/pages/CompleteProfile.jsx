@@ -2,7 +2,7 @@ import { useParams, Navigate } from "react-router-dom";
 
 import ProfessionalForm from "../components/completeProfile/ProfessionalForm";
 import StartupBuilderForm from "../components/completeProfile/StartupBuilderForm";
-// import InvestorForm from "../components/completeProfile/InvestorForm";
+import InvestorForm from "../components/completeProfile/InvestorForm";
 
 function CompleteProfile() {
     const { role } = useParams();
@@ -81,6 +81,7 @@ const currentProfile = profileContent[role];
         <InvestorForm />
     ) : (
         <Navigate to="/" replace />
+        
     )
 }
 
