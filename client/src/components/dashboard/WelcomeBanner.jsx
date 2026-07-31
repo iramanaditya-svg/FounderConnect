@@ -4,14 +4,35 @@ import {
     ChartColumn,
 } from "lucide-react";
 
-const user = JSON.parse(localStorage.getItem("user"));
-
-const hour = new Date().getHours();
-
-
 import bannerIllustration from "../../assets/dashboard/banner-illustration.png";
 
 function WelcomeBanner() {
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    const roleMessages = {
+        professional: {
+            title: `Hi, ${user?.fullName || user?.username}!`,
+            description:
+                "Discover exciting job opportunities, connect with innovative startups, showcase your skills, and take the next step in your professional journey.",
+        },
+
+        startup_builder: {
+            title: `Welcome back, ${user?.fullName || user?.username}! `,
+            description:
+                "Manage your startups, post job openings, hire talented professionals, connect with investors, and build the next big success story.",
+        },
+
+        investor: {
+            title: `Welcome, ${user?.fullName || user?.username}! `,
+            description:
+                "Explore high-potential startups, evaluate investment opportunities, grow your portfolio, and empower founders building the future.",
+        },
+    };
+
+    const banner =
+        roleMessages[user?.activeRole] || roleMessages.professional;
+
     return (
         <section
             className="
@@ -59,20 +80,17 @@ function WelcomeBanner() {
 
             <div className="relative flex items-center justify-between">
 
-
                 <div className="max-w-2xl">
-<h1 className="text-4xl font-bold text-slate-900 xl:text-5xl">
-    Hi, {user?.fullName || user?.username}
-</h1>
+
+                    <h1 className="text-4xl font-bold text-slate-900 xl:text-5xl">
+                        {banner.title}
+                    </h1>
 
                     <p className="mt-5 text-lg leading-8 text-slate-600">
-                        Explore startups perfectly matched to your skills,
-                        discover exciting opportunities, and connect with
-                        founders building the future.
+                        {banner.description}
                     </p>
 
                 </div>
-
 
                 <div className="hidden lg:flex">
 

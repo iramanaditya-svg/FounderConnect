@@ -5,47 +5,124 @@ import {
     Bell,
     Users,
     Settings,
-    Crown,
-    ChevronRight,
+    Building2,
+    TrendingUp,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
-const menu = [
-    {
-        title: "Home",
-        icon: Home,
-        path: "/professional/dashboard",
-    },
-    {
-        title: "Applied Jobs",
-        icon: Briefcase,
-        path: "/professional/dashboard/applied-jobs",
-    },
-    {
-        title: "Active Applications",
-        icon: Clock3,
-        path: "/professional/dashboard/active-applications",
-    },
-    {
-        title: "Notifications",
-        icon: Bell,
-        path: "/professional/dashboard/notifications",
-    },
-    {
-        title: "Connections",
-        icon: Users,
-        path: "/professional/dashboard/connections",
-    },
-    {
-        title: "Settings",
-        icon: Settings,
-        path: "/professional/dashboard/settings",
-    },
-];
-
 function Sidebar() {
+
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    let menu = [];
+
+    if (user?.activeRole === "professional") {
+        menu = [
+            {
+                title: "Home",
+                icon: Home,
+                path: "/professional/dashboard",
+            },
+            {
+                title: "Applied Jobs",
+                icon: Briefcase,
+                path: "/professional/dashboard/applied-jobs",
+            },
+            {
+                title: "Active Applications",
+                icon: Clock3,
+                path: "/professional/dashboard/active-applications",
+            },
+            {
+                title: "Notifications",
+                icon: Bell,
+                path: "/professional/dashboard/notifications",
+            },
+            {
+                title: "Connections",
+                icon: Users,
+                path: "/professional/dashboard/connections",
+            },
+            {
+                title: "Settings",
+                icon: Settings,
+                path: "/professional/dashboard/settings",
+            },
+        ];
+    }
+
+    else if (user?.activeRole === "startup_builder") {
+        menu = [
+            {
+                title: "Home",
+                icon: Home,
+                path: "/startup_builder/dashboard",
+            },
+            {
+                title: "My Jobs",
+                icon: Briefcase,
+                path: "/startup_builder/dashboard/my-jobs",
+            },
+            {
+                title: "Applicants",
+                icon: Users,
+                path: "/startup_builder/dashboard/applicants",
+            },
+            {
+                title: "My Startups",
+                icon: Building2,
+                path: "/startup_builder/dashboard/my-startups",
+            },
+            {
+                title: "Notifications",
+                icon: Bell,
+                path: "/startup_builder/dashboard/notifications",
+            },
+            {
+                title: "Settings",
+                icon: Settings,
+                path: "/startup_builder/dashboard/settings",
+            },
+        ];
+    }
+
+    else if (user?.activeRole === "investor") {
+        menu = [
+            {
+                title: "Home",
+                icon: Home,
+                path: "/investor/dashboard",
+            },
+            {
+                title: "Portfolio",
+                icon: TrendingUp,
+                path: "/investor/dashboard/portfolio",
+            },
+            {
+                title: "Startups",
+                icon: Building2,
+                path: "/investor/dashboard/startups",
+            },
+            {
+                title: "Notifications",
+                icon: Bell,
+                path: "/investor/dashboard/notifications",
+            },
+            {
+                title: "Connections",
+                icon: Users,
+                path: "/investor/dashboard/connections",
+            },
+            {
+                title: "Settings",
+                icon: Settings,
+                path: "/investor/dashboard/settings",
+            },
+        ];
+    }
+
     return (
         <aside className="flex w-72 flex-col border-r border-white/10 bg-[#0B1023]">
 
@@ -55,6 +132,7 @@ function Sidebar() {
                     alt="FounderConnect"
                     className="h-14 w-auto"
                 />
+
                 <p className="mt-2 text-sm text-slate-400">
                     Connect • Build • Grow
                 </p>
@@ -70,7 +148,7 @@ function Sidebar() {
                         <NavLink
                             key={item.title}
                             to={item.path}
-                            end={item.path === "/professional/dashboard"}
+                            end={item.path === menu[0]?.path}
                         >
                             {({ isActive }) => (
                                 <div
@@ -89,6 +167,7 @@ function Sidebar() {
                                             size={21}
                                             className="transition-transform duration-300 group-hover:scale-110"
                                         />
+
                                         <span className="font-medium">
                                             {item.title}
                                         </span>

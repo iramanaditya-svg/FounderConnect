@@ -25,20 +25,26 @@ function SelectRole() {
 
     const [currentLine, setCurrentLine] = useState(1);
 
-    const handleContinue = async () => {
-        if (!selectedRole) return;
+const handleContinue = async () => {
+    if (!selectedRole) return;
 
-        try {
-            await selectRole({
-                role: selectedRole,
-            });
+    try {
+        const response = await selectRole({
+            role: selectedRole,
+        });
 
-navigate(`/${selectedRole}/complete-profile`);
+        const updatedUser = response.data;
 
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        localStorage.setItem(
+            "user",
+            JSON.stringify(updatedUser)
+        );
+
+        navigate(`/${updatedUser.activeRole}/complete-profile`);
+    } catch (error) {
+        console.error(error);
+    }
+};
     useEffect(() => {
         const animateLogo = async () => {
 

@@ -3,6 +3,7 @@ function InputField({
     required = false,
     placeholder,
     type = "text",
+    name,
     value,
     onChange,
 }) {
@@ -17,6 +18,7 @@ function InputField({
             </label>
 
             <input
+                name={name}
                 type={type}
                 value={value}
                 onChange={onChange}

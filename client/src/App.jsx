@@ -8,6 +8,7 @@ import CompleteProfile from "./pages/CompleteProfile";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 
 import Home from "./components/home/Home";
+import MyStartups from "./pages/dashboard/startup_builder/MyStartups";
 
 function App() {
     return (
@@ -33,18 +34,42 @@ function App() {
                 element={<CompleteProfile />}
             />
 
+            {/* Professional Dashboard */}
             <Route
                 path="/professional/dashboard"
                 element={<DashboardLayout />}
             >
+                <Route
+                    index
+                    element={<Home />}
+                />
+            </Route>
 
-                {/* 👇 ISKO COMMENT MAT RAKHNA */}
-
+            {/* Startup Builder Dashboard */}
+            <Route
+                path="/startup_builder/dashboard"
+                element={<DashboardLayout />}
+            >
                 <Route
                     index
                     element={<Home />}
                 />
 
+                <Route
+                    path="my-startups"
+                    element={<MyStartups />}
+                />
+            </Route>
+
+            {/* Investor Dashboard */}
+            <Route
+                path="/investor/dashboard"
+                element={<DashboardLayout />}
+            >
+                <Route
+                    index
+                    element={<Home />}
+                />
             </Route>
 
         </Routes>

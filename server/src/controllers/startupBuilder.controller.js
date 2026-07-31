@@ -40,17 +40,28 @@ const createStartupBuilderProfile = asyncHandler(async (req, res) => {
         );
     }
 
-    const existingProfile =
-        await StartupBuilderProfile.findOne({
-            user: user._id,
-        });
+const existingProfile = await StartupBuilderProfile.findOne({
+    user: user._id,
+});
 
-    if (existingProfile) {
-        throw new ApiError(
-            409,
+if (existingProfile) {
+    user.isProfileCompleted = true;
+
+    await user.save({
+        validateBeforeSave: false,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                startupBuilderProfile: existingProfile,
+                user,
+            },
             "Startup Builder profile already exists"
-        );
-    }
+        )
+    );
+}
 
     const startupBuilderProfile =
         await StartupBuilderProfile.create({

@@ -1,8 +1,10 @@
 function SelectField({
     label,
     required = false,
+    name,
     value,
     onChange,
+    placeholder = "Select an option",
     options = [],
 }) {
     return (
@@ -16,6 +18,7 @@ function SelectField({
             </label>
 
             <select
+                name={name}
                 value={value}
                 onChange={onChange}
                 className="
@@ -38,7 +41,9 @@ function SelectField({
                 <option value="">
                     Select Experience
                 </option>
-
+    <option value="">
+        {placeholder}
+    </option>
                 {options.map((option) => (
                     <option
                         key={option}

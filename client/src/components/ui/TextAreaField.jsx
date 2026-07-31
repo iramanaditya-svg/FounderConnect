@@ -2,6 +2,7 @@ function TextAreaField({
     label,
     required = false,
     placeholder = "",
+    name,
     value,
     onChange,
     rows = 5,
@@ -17,6 +18,7 @@ function TextAreaField({
             </label>
 
             <textarea
+                name={name}
                 rows={rows}
                 placeholder={placeholder}
                 value={value}
