@@ -1,5 +1,5 @@
 import WelcomeBanner from "../dashboard/WelcomeBanner";
-
+import StartupFeed from "../../components/startup/StartupFeed";
 function Home() {
     const user = JSON.parse(localStorage.getItem("user"));
 
@@ -12,29 +12,14 @@ function Home() {
 
             {role === "professional" && (
                 <>
-                    <section>
+<section className="space-y-6">
 
-                        <h2 className="text-3xl font-bold text-white">
-                            Recommended Jobs
-                        </h2>
+    <StartupFeed />
 
-                    </section>
+</section>
 
-                    <section>
 
-                        <h2 className="text-3xl font-bold text-white">
-                            Recommended Startups
-                        </h2>
 
-                    </section>
-
-                    <section>
-
-                        <h2 className="text-3xl font-bold text-white">
-                            Latest Jobs
-                        </h2>
-
-                    </section>
                 </>
             )}
 
@@ -113,13 +98,6 @@ function Home() {
 
                     </div>
 
-                    <section>
-
-                        <h2 className="text-3xl font-bold text-white">
-                            Recent Jobs
-                        </h2>
-
-                    </section>
 
                 </>
             )}

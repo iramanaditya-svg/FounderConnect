@@ -99,12 +99,12 @@ function MyStartups() {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 
                     {startups.map((startup) => (
-                        <StartupCard
-                            key={startup._id}
-                            startup={startup}
-                        />
-                    ))}
-
+    <StartupCard
+        key={startup._id}
+        startup={startup}
+        onRefresh={fetchStartups}
+    />
+))}
                 </div>
 
             )}

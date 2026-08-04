@@ -1,3 +1,5 @@
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
     MapPin,
     Globe,
@@ -5,8 +7,30 @@ import {
     Trash2,
     Building2,
 } from "lucide-react";
+function StartupCard({ startup, onRefresh }) {
+    const navigate = useNavigate();
 
-function StartupCard({ startup }) {
+    const handleDelete = async () => {
+        const confirmed = window.confirm(
+            `Delete ${startup.name}?`
+        );
+
+        if (!confirmed) return;
+
+        try {
+            await axios.delete(
+    `http://localhost:8000/api/v1/startups/${startup._id}`,
+    {
+        withCredentials: true,
+    }
+);
+
+await onRefresh();
+        } catch (error) {
+            console.log(error);
+            alert("Failed to delete startup.");
+        }
+    };
     return (
         <div className="rounded-3xl border border-slate-800 bg-[#0F172A] p-6 transition duration-300 hover:border-violet-500 hover:shadow-xl hover:shadow-violet-500/10">
 
@@ -95,13 +119,25 @@ function StartupCard({ startup }) {
 
                 <div className="flex gap-3">
 
-                    <button className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-violet-600 hover:text-white">
-                        <Pencil size={18} />
-                    </button>
+                    <div className="flex gap-3">
+    <button
+        onClick={() =>
+            navigate(
+                `/startup_builder/dashboard/my-startups/${startup._id}`
+            )
+        }
+        className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-violet-600 hover:text-white"
+    >
+        <Pencil size={18} />
+    </button>
 
-                    <button className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-red-600 hover:text-white">
-                        <Trash2 size={18} />
-                    </button>
+    <button
+        onClick={handleDelete}
+        className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-red-600 hover:text-white"
+    >
+        <Trash2 size={18} />
+    </button>
+</div>
 
                 </div>
 

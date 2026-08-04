@@ -7,13 +7,15 @@ import {
     getMyStartups,
     getStartupById,
     updateStartup,
-    deleteStartup
+    deleteStartup,
+    getAllStartups
  } from "../controllers/startup.controller.js";
 
 const router = Router();
 
 router
     .route("/")
+    .get(verifyJWT, getAllStartups)
     .post(verifyJWT, createStartup);
 
 router

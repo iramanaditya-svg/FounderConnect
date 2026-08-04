@@ -2,15 +2,20 @@ import { Router } from "express";
 
 import verifyJWT from "../middlewares/auth.middleware.js";
 
+
 import {
     createJob,
     getStartupJobs,
     getJobById,
     updateJob,
     deleteJob,
+    getAllJobs
 } from "../controllers/job.controller.js";
 
 const router = Router();
+router
+    .route("/jobs")
+    .get(verifyJWT, getAllJobs);
 
 router
     .route("/startups/:startupId/jobs")

@@ -97,6 +97,7 @@ const createJob = asyncHandler(async (req, res) => {
 const getStartupJobs = asyncHandler(async (req, res) => {
     const { startupId } = req.params;
 
+    
     if (!mongoose.isValidObjectId(startupId)) {
         throw new ApiError(
             400,
@@ -129,6 +130,31 @@ const getStartupJobs = asyncHandler(async (req, res) => {
             "Jobs fetched successfully"
         )
     );
+});
+const getAllJobs = asyncHandler(async (req, res) => {
+
+    const jobs = await Job.find({
+        status: "active",
+    })
+    .populate(
+        "startup",
+        "name logo location stage"
+    )
+    .sort({
+        createdAt: -1,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                jobCount: jobs.length,
+                jobs,
+            },
+            "Jobs fetched successfully"
+        )
+    );
+
 });
 
 const getJobById = asyncHandler(async (req, res) => {
@@ -340,4 +366,5 @@ export {
     getJobById,
     updateJob,
     deleteJob,
+    getAllJobs
 };

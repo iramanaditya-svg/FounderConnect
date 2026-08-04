@@ -133,6 +133,30 @@ const getMyStartups = asyncHandler(async (req, res) => {
     );
 });
 
+ const getAllStartups = asyncHandler(async (req, res) => {
+
+    const startups = await Startup.find({})
+        .populate(
+            "founder",
+            "fullName username profilePicture"
+        )
+        .sort({
+            createdAt: -1,
+        });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                startupCount: startups.length,
+                startups,
+            },
+            "All startups fetched successfully."
+        )
+    );
+
+});
+
 const getStartupById = asyncHandler(async (req, res) => {
     const { startupId } = req.params;
 
@@ -405,5 +429,6 @@ export {
     getMyStartups,
     getStartupById,
     updateStartup,
-    deleteStartup
+    deleteStartup,
+    getAllStartups
 };

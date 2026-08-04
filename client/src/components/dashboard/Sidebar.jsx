@@ -7,6 +7,7 @@ import {
     Settings,
     Building2,
     TrendingUp,
+    LogOut,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -130,7 +131,7 @@ function Sidebar() {
                 <img
                     src={logo}
                     alt="FounderConnect"
-                    className="h-14 w-auto"
+                    className="h-11 w-auto"
                 />
 
                 <p className="mt-2 text-sm text-slate-400">
@@ -185,7 +186,43 @@ function Sidebar() {
                 })}
 
             </nav>
+<div className="border-t border-white/10 p-4">
 
+    <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-lg font-bold text-white">
+
+            {user?.fullName?.charAt(0).toUpperCase()}
+
+        </div>
+
+        <div className="flex-1 overflow-hidden">
+
+            <h3 className="truncate text-sm font-semibold text-white">
+
+                {user?.fullName}
+
+            </h3>
+
+            <p className="truncate text-xs capitalize text-slate-400">
+
+                {user?.activeRole.replace("_", " ")}
+
+            </p>
+
+        </div>
+
+        <button
+            className="rounded-xl p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
+        >
+
+            <LogOut size={18} />
+
+        </button>
+
+    </div>
+
+</div>
         </aside>
     );
 }
