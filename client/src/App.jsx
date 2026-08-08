@@ -19,6 +19,8 @@ import StartupBuilderForm from "./components/completeProfile/StartupBuilderForm"
 import Applicants from "./pages/dashboard/startup_builder/Applicants";
 import ApplicantDetails from "./pages/dashboard/startup_builder/ApplicantDetails";
 import JobApplicants from "./pages/dashboard/startup_builder/JobApplicants";
+import ActiveApplications from "./pages/professional/ActiveApplications";
+import InvestorDashboard from "./pages/dashboard/investor/InvestorDashboard";
 function App() {
     return (
         <Routes>
@@ -44,20 +46,31 @@ function App() {
             />
 
 
-<Route path="/professional/dashboard" element={<DashboardLayout />}>
+<Route
+    path="/professional/dashboard"
+    element={<DashboardLayout />}
+>
     <Route index element={<Home />} />
+
     <Route
         path="startups/:startupId"
         element={<StartupDetails />}
     />
+
     <Route
-    path="edit-profile"
-    element={<EditProfile />}
-/>
-<Route
-    path="applied-jobs"
-    element={<AppliedJobs />}
-/>
+        path="edit-profile"
+        element={<EditProfile />}
+    />
+
+    <Route
+        path="applied-jobs"
+        element={<AppliedJobs />}
+    />
+
+    <Route
+        path="active-applications"
+        element={<ActiveApplications />}
+    />
 </Route>
 
 
@@ -110,16 +123,15 @@ function App() {
 </Route>
 
 
-            <Route
-                path="/investor/dashboard"
-                element={<DashboardLayout />}
-            >
-                <Route
-                    index
-                    element={<Home />}
-                />
-            </Route>
-
+<Route
+    path="/investor/dashboard"
+    element={<DashboardLayout />}
+>
+    <Route
+        index
+        element={<Home />}
+    />
+</Route>
         </Routes>
     );
 }

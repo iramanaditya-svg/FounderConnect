@@ -12,6 +12,11 @@ import {
     Clock3,
     XCircle,
     PauseCircle,
+    BarChart3,
+    CircleDollarSign,
+    ArrowUpRight,
+    Target,
+    TrendingUp,
 } from "lucide-react";
 
 import WelcomeBanner from "../dashboard/WelcomeBanner";
@@ -400,23 +405,845 @@ function Home() {
 
     if (role === "investor") {
 
+        const [investments, setInvestments] =
+            useState([]);
+
+        const [investmentsLoading, setInvestmentsLoading] =
+            useState(true);
+
+        useEffect(() => {
+
+            const fetchInvestments = async () => {
+
+                try {
+
+                    const response =
+                        await axios.get(
+                            "http://localhost:8000/api/v1/investments/my",
+                            {
+                                withCredentials: true,
+                            }
+                        );
+
+                    setInvestments(
+                        response.data?.data?.investments || []
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Failed to fetch investments:",
+                        error
+                    );
+
+                } finally {
+
+                    setInvestmentsLoading(false);
+
+                }
+
+            };
+
+            fetchInvestments();
+
+        }, []);
+
+        const investorAnalytics = useMemo(() => {
+
+            const accepted =
+                investments.filter(
+                    (investment) =>
+                        investment.status === "accepted"
+                );
+
+            const pending =
+                investments.filter(
+                    (investment) =>
+                        investment.status === "pending"
+                );
+
+            const rejected =
+                investments.filter(
+                    (investment) =>
+                        investment.status === "rejected"
+                );
+
+            const totalFundInvested =
+                accepted.reduce(
+                    (total, investment) =>
+                        total +
+                        Number(investment.amount || 0),
+                    0
+                );
+
+            const industryMap = {};
+            const stageMap = {};
+            const companyMap = {};
+
+            accepted.forEach((investment) => {
+
+                const amount =
+                    Number(investment.amount || 0);
+
+                const industries =
+                    investment.startup?.industry || [];
+
+                industries.forEach((industry) => {
+                    industryMap[industry] =
+                        (industryMap[industry] || 0) +
+                        amount;
+                });
+
+                const stage =
+                    investment.startup?.stage ||
+                    "unknown";
+
+                stageMap[stage] =
+                    (stageMap[stage] || 0) +
+                    amount;
+
+                const startup =
+                    investment.startup;
+
+                if (startup?._id) {
+
+                    const id =
+                        startup._id.toString();
+
+                    if (!companyMap[id]) {
+                        companyMap[id] = {
+                            startup,
+                            amount: 0,
+                            count: 0,
+                        };
+                    }
+
+                    companyMap[id].amount += amount;
+                    companyMap[id].count += 1;
+
+                }
+
+            });
+
+            const investedCompanies =
+                Object.values(companyMap).sort(
+                    (a, b) =>
+                        b.amount - a.amount
+                );
+
+            const industryBreakdown =
+                Object.entries(industryMap)
+                    .map(([name, amount]) => ({
+                        name,
+                        amount,
+                    }))
+                    .sort(
+                        (a, b) =>
+                            b.amount - a.amount
+                    );
+
+            const stageBreakdown =
+                Object.entries(stageMap)
+                    .map(([name, amount]) => ({
+                        name,
+                        amount,
+                    }))
+                    .sort(
+                        (a, b) =>
+                            b.amount - a.amount
+                    );
+
+            const averageInvestment =
+                accepted.length
+                    ? totalFundInvested /
+                      accepted.length
+                    : 0;
+
+            const largestInvestment =
+                accepted.length
+                    ? Math.max(
+                          ...accepted.map(
+                              (investment) =>
+                                  Number(
+                                      investment.amount || 0
+                                  )
+                          )
+                      )
+                    : 0;
+
+            return {
+                accepted,
+                pending,
+                rejected,
+                totalFundInvested,
+                investedCompanies,
+                industryBreakdown,
+                stageBreakdown,
+                averageInvestment,
+                largestInvestment,
+            };
+
+        }, [investments]);
+
+        const maxIndustryValue =
+            investorAnalytics.industryBreakdown.length
+                ? Math.max(
+                      ...investorAnalytics.industryBreakdown.map(
+                          (item) => item.amount
+                      )
+                  )
+                : 1;
+
+        const maxStageValue =
+            investorAnalytics.stageBreakdown.length
+                ? Math.max(
+                      ...investorAnalytics.stageBreakdown.map(
+                          (item) => item.amount
+                      )
+                  )
+                : 1;
+
         return (
 
             <div className="space-y-8">
 
                 <WelcomeBanner />
 
-                <div className="rounded-3xl border border-white/10 bg-[#111827] p-8">
+                {investmentsLoading ? (
 
-                    <h2 className="text-xl font-semibold text-white">
-                        Investor Dashboard
-                    </h2>
+                    <div className="flex h-56 items-center justify-center rounded-3xl border border-white/10 bg-[#111827]">
 
-                    <p className="mt-2 text-sm text-gray-500">
-                        Your investor workspace will appear here.
-                    </p>
+                        <p className="text-sm text-slate-400">
+                            Loading investments...
+                        </p>
 
-                </div>
+                    </div>
+
+                ) : (
+
+                    <>
+
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-center justify-between">
+
+                                    <div>
+
+                                        <p className="text-sm text-slate-400">
+                                            Total Fund Invested
+                                        </p>
+
+                                        <h2 className="mt-3 text-3xl font-bold text-white">
+                                            ₹{investorAnalytics.totalFundInvested.toLocaleString("en-IN")}
+                                        </h2>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-purple-500/10 p-4">
+
+                                        <CircleDollarSign
+                                            size={25}
+                                            className="text-purple-400"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                <p className="mt-4 text-sm text-slate-500">
+                                    Accepted investments
+                                </p>
+
+                            </div>
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-center justify-between">
+
+                                    <div>
+
+                                        <p className="text-sm text-slate-400">
+                                            Active Investments
+                                        </p>
+
+                                        <h2 className="mt-3 text-3xl font-bold text-white">
+                                            {investorAnalytics.accepted.length}
+                                        </h2>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-blue-500/10 p-4">
+
+                                        <BriefcaseBusiness
+                                            size={25}
+                                            className="text-blue-400"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                <p className="mt-4 text-sm text-slate-500">
+                                    Currently invested
+                                </p>
+
+                            </div>
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-center justify-between">
+
+                                    <div>
+
+                                        <p className="text-sm text-slate-400">
+                                            Invested Companies
+                                        </p>
+
+                                        <h2 className="mt-3 text-3xl font-bold text-white">
+                                            {investorAnalytics.investedCompanies.length}
+                                        </h2>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-green-500/10 p-4">
+
+                                        <Building2
+                                            size={25}
+                                            className="text-green-400"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                <p className="mt-4 text-sm text-slate-500">
+                                    Unique portfolio companies
+                                </p>
+
+                            </div>
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-center justify-between">
+
+                                    <div>
+
+                                        <p className="text-sm text-slate-400">
+                                            Investment Requests
+                                        </p>
+
+                                        <h2 className="mt-3 text-3xl font-bold text-white">
+                                            {investments.length}
+                                        </h2>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-yellow-500/10 p-4">
+
+                                        <Clock3
+                                            size={25}
+                                            className="text-yellow-400"
+                                        />
+
+                                    </div>
+
+                                </div>
+
+                                <p className="mt-4 text-sm text-slate-500">
+                                    Total requests made
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+
+                            <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-start justify-between">
+
+                                    <div>
+
+                                        <h2 className="text-xl font-semibold text-white">
+                                            Investment by Industry
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            Accepted investment allocation across industries
+                                        </p>
+
+                                    </div>
+
+                                    <BarChart3
+                                        size={20}
+                                        className="text-purple-400"
+                                    />
+
+                                </div>
+
+                                <div className="mt-8 space-y-5">
+
+                                    {investorAnalytics.industryBreakdown.length === 0 ? (
+
+                                        <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10">
+
+                                            <p className="text-sm text-slate-500">
+                                                No accepted investments yet.
+                                            </p>
+
+                                        </div>
+
+                                    ) : (
+
+                                        investorAnalytics.industryBreakdown
+                                            .slice(0, 8)
+                                            .map((item) => (
+
+                                                <div key={item.name}>
+
+                                                    <div className="mb-2 flex items-center justify-between">
+
+                                                        <span className="text-sm font-medium text-slate-300">
+                                                            {item.name}
+                                                        </span>
+
+                                                        <span className="text-sm font-semibold text-white">
+                                                            ₹{item.amount.toLocaleString("en-IN")}
+                                                        </span>
+
+                                                    </div>
+
+                                                    <div className="h-3 overflow-hidden rounded-full bg-white/5">
+
+                                                        <div
+                                                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500"
+                                                            style={{
+                                                                width: `${Math.max(
+                                                                    5,
+                                                                    (item.amount /
+                                                                        maxIndustryValue) *
+                                                                        100
+                                                                )}%`,
+                                                            }}
+                                                        />
+
+                                                    </div>
+
+                                                </div>
+
+                                            ))
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-start justify-between">
+
+                                    <div>
+
+                                        <h2 className="text-xl font-semibold text-white">
+                                            Portfolio Summary
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            Current investment overview
+                                        </p>
+
+                                    </div>
+
+                                    <Target
+                                        size={20}
+                                        className="text-cyan-400"
+                                    />
+
+                                </div>
+
+                                <div className="mt-7 space-y-4">
+
+                                    <div className="rounded-2xl bg-white/[0.03] p-4">
+
+                                        <p className="text-xs text-slate-500">
+                                            Average Investment
+                                        </p>
+
+                                        <p className="mt-2 text-lg font-semibold text-white">
+                                            ₹{investorAnalytics.averageInvestment.toLocaleString("en-IN")}
+                                        </p>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-white/[0.03] p-4">
+
+                                        <p className="text-xs text-slate-500">
+                                            Largest Investment
+                                        </p>
+
+                                        <p className="mt-2 text-lg font-semibold text-white">
+                                            ₹{investorAnalytics.largestInvestment.toLocaleString("en-IN")}
+                                        </p>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-white/[0.03] p-4">
+
+                                        <p className="text-xs text-slate-500">
+                                            Pending Requests
+                                        </p>
+
+                                        <p className="mt-2 text-lg font-semibold text-white">
+                                            {investorAnalytics.pending.length}
+                                        </p>
+
+                                    </div>
+
+                                    <div className="rounded-2xl bg-white/[0.03] p-4">
+
+                                        <p className="text-xs text-slate-500">
+                                            Rejected Requests
+                                        </p>
+
+                                        <p className="mt-2 text-lg font-semibold text-white">
+                                            {investorAnalytics.rejected.length}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-start justify-between">
+
+                                    <div>
+
+                                        <h2 className="text-xl font-semibold text-white">
+                                            Investment by Stage
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            Accepted investment allocation
+                                        </p>
+
+                                    </div>
+
+                                    <TrendingUp
+                                        size={20}
+                                        className="text-blue-400"
+                                    />
+
+                                </div>
+
+                                <div className="mt-8 space-y-5">
+
+                                    {investorAnalytics.stageBreakdown.length === 0 ? (
+
+                                        <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10">
+
+                                            <p className="text-sm text-slate-500">
+                                                No accepted investments yet.
+                                            </p>
+
+                                        </div>
+
+                                    ) : (
+
+                                        investorAnalytics.stageBreakdown.map(
+                                            (item) => (
+
+                                                <div key={item.name}>
+
+                                                    <div className="mb-2 flex items-center justify-between">
+
+                                                        <span className="text-sm font-medium capitalize text-slate-300">
+                                                            {item.name.replace("_", " ")}
+                                                        </span>
+
+                                                        <span className="text-sm font-semibold text-white">
+                                                            ₹{item.amount.toLocaleString("en-IN")}
+                                                        </span>
+
+                                                    </div>
+
+                                                    <div className="h-3 overflow-hidden rounded-full bg-white/5">
+
+                                                        <div
+                                                            className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                                                            style={{
+                                                                width: `${Math.max(
+                                                                    5,
+                                                                    (item.amount /
+                                                                        maxStageValue) *
+                                                                        100
+                                                                )}%`,
+                                                            }}
+                                                        />
+
+                                                    </div>
+
+                                                </div>
+
+                                            )
+                                        )
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                            <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                                <div className="flex items-start justify-between">
+
+                                    <div>
+
+                                        <h2 className="text-xl font-semibold text-white">
+                                            Invested Companies
+                                        </h2>
+
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            Companies currently in your portfolio
+                                        </p>
+
+                                    </div>
+
+                                    <Building2
+                                        size={20}
+                                        className="text-green-400"
+                                    />
+
+                                </div>
+
+                                <div className="mt-6 space-y-3">
+
+                                    {investorAnalytics.investedCompanies.length === 0 ? (
+
+                                        <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10">
+
+                                            <p className="text-sm text-slate-500">
+                                                No invested companies yet.
+                                            </p>
+
+                                        </div>
+
+                                    ) : (
+
+                                        investorAnalytics.investedCompanies
+                                            .slice(0, 5)
+                                            .map((item) => (
+
+                                                <button
+                                                    key={item.startup._id}
+                                                    onClick={() =>
+                                                        navigate(
+                                                            `/investor/dashboard/startups/${item.startup._id}`
+                                                        )
+                                                    }
+                                                    className="flex w-full items-center justify-between rounded-2xl border border-white/5 bg-white/[0.02] p-4 text-left transition hover:bg-white/[0.05]"
+                                                >
+
+                                                    <div className="flex items-center gap-3">
+
+                                                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600">
+
+                                                            <Building2
+                                                                size={19}
+                                                                className="text-white"
+                                                            />
+
+                                                        </div>
+
+                                                        <div>
+
+                                                            <p className="font-semibold text-white">
+                                                                {item.startup.name}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs capitalize text-slate-500">
+                                                                {item.startup.stage?.replace(
+                                                                    "_",
+                                                                    " "
+                                                                )}
+                                                            </p>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div className="text-right">
+
+                                                        <p className="font-semibold text-white">
+                                                            ₹{item.amount.toLocaleString("en-IN")}
+                                                        </p>
+
+                                                        <p className="text-xs text-slate-500">
+                                                            {item.count} investment
+                                                            {item.count !== 1 ? "s" : ""}
+                                                        </p>
+
+                                                    </div>
+
+                                                    <ArrowUpRight
+                                                        size={16}
+                                                        className="ml-3 text-slate-500"
+                                                    />
+
+                                                </button>
+
+                                            ))
+
+                                    )}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+
+                            <div className="flex items-center justify-between">
+
+                                <div>
+
+                                    <h2 className="text-xl font-semibold text-white">
+                                        Recent Investment Activity
+                                    </h2>
+
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        Your latest investment requests
+                                    </p>
+
+                                </div>
+
+                                <Clock3
+                                    size={20}
+                                    className="text-purple-400"
+                                />
+
+                            </div>
+
+                            <div className="mt-6 overflow-hidden rounded-2xl border border-white/5">
+
+                                {investments.length === 0 ? (
+
+                                    <div className="flex h-40 items-center justify-center">
+
+                                        <p className="text-sm text-slate-500">
+                                            No investment requests yet.
+                                        </p>
+
+                                    </div>
+
+                                ) : (
+
+                                    <div className="divide-y divide-white/5">
+
+                                        {investments
+                                            .slice(0, 6)
+                                            .map((investment) => (
+
+                                                <div
+                                                    key={investment._id}
+                                                    className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between"
+                                                >
+
+                                                    <div className="flex items-center gap-4">
+
+                                                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10">
+
+                                                            <Building2
+                                                                size={18}
+                                                                className="text-purple-400"
+                                                            />
+
+                                                        </div>
+
+                                                        <div>
+
+                                                            <p className="font-semibold text-white">
+                                                                {investment.startup?.name ||
+                                                                    "Startup"}
+                                                            </p>
+
+                                                            <p className="mt-1 text-xs text-slate-500">
+                                                                {investment.createdAt
+                                                                    ? new Date(
+                                                                          investment.createdAt
+                                                                      ).toLocaleDateString(
+                                                                          "en-IN"
+                                                                      )
+                                                                    : ""}
+                                                            </p>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div className="flex items-center gap-6">
+
+                                                        <div className="text-right">
+
+                                                            <p className="font-semibold text-white">
+                                                                ₹{Number(
+                                                                    investment.amount || 0
+                                                                ).toLocaleString("en-IN")}
+                                                            </p>
+
+                                                            <p className="text-xs text-slate-500">
+                                                                {investment.equityAsked}%
+                                                                equity
+                                                            </p>
+
+                                                        </div>
+
+                                                        <span
+                                                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                                                investment.status ===
+                                                                "accepted"
+                                                                    ? "bg-emerald-500/10 text-emerald-400"
+                                                                    : investment.status ===
+                                                                      "pending"
+                                                                    ? "bg-yellow-500/10 text-yellow-400"
+                                                                    : investment.status ===
+                                                                      "rejected"
+                                                                    ? "bg-red-500/10 text-red-400"
+                                                                    : "bg-slate-500/10 text-slate-400"
+                                                            }`}
+                                                        >
+                                                            {investment.status}
+                                                        </span>
+
+                                                    </div>
+
+                                                </div>
+
+                                            ))}
+
+                                    </div>
+
+                                )}
+
+                            </div>
+
+                        </div>
+
+                    </>
+
+                )}
 
             </div>
 
@@ -683,165 +1510,7 @@ function Home() {
 
 
 
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-
-
-
-
-                <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
-
-                    <div>
-
-                        <h2 className="text-xl font-semibold text-white">
-                            Job Status
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-500">
-                            Current state of your job postings
-                        </p>
-
-                    </div>
-
-
-                    <div className="mt-8 space-y-5">
-
-
-
-
-                        <div>
-
-                            <div className="mb-2 flex justify-between">
-
-                                <span className="flex items-center gap-2 text-sm text-slate-300">
-
-                                    <CheckCircle2
-                                        size={16}
-                                        className="text-green-400"
-                                    />
-
-                                    Open
-
-                                </span>
-
-                                <span className="text-sm font-semibold text-white">
-                                    {jobStats.open}
-                                </span>
-
-                            </div>
-
-                            <div className="h-2 overflow-hidden rounded-full bg-white/5">
-
-                                <div
-                                    className="h-full rounded-full bg-green-500 transition-all"
-                                    style={{
-                                        width: `${
-                                            jobStats.total
-                                                ? (
-                                                    jobStats.open /
-                                                    jobStats.total
-                                                ) * 100
-                                                : 0
-                                        }%`,
-                                    }}
-                                />
-
-                            </div>
-
-                        </div>
-
-
-
-
-                        <div>
-
-                            <div className="mb-2 flex justify-between">
-
-                                <span className="flex items-center gap-2 text-sm text-slate-300">
-
-                                    <PauseCircle
-                                        size={16}
-                                        className="text-yellow-400"
-                                    />
-
-                                    Paused
-
-                                </span>
-
-                                <span className="text-sm font-semibold text-white">
-                                    {jobStats.paused}
-                                </span>
-
-                            </div>
-
-                            <div className="h-2 overflow-hidden rounded-full bg-white/5">
-
-                                <div
-                                    className="h-full rounded-full bg-yellow-500 transition-all"
-                                    style={{
-                                        width: `${
-                                            jobStats.total
-                                                ? (
-                                                    jobStats.paused /
-                                                    jobStats.total
-                                                ) * 100
-                                                : 0
-                                        }%`,
-                                    }}
-                                />
-
-                            </div>
-
-                        </div>
-
-
-
-
-                        <div>
-
-                            <div className="mb-2 flex justify-between">
-
-                                <span className="flex items-center gap-2 text-sm text-slate-300">
-
-                                    <XCircle
-                                        size={16}
-                                        className="text-red-400"
-                                    />
-
-                                    Closed
-
-                                </span>
-
-                                <span className="text-sm font-semibold text-white">
-                                    {jobStats.closed}
-                                </span>
-
-                            </div>
-
-                            <div className="h-2 overflow-hidden rounded-full bg-white/5">
-
-                                <div
-                                    className="h-full rounded-full bg-red-500 transition-all"
-                                    style={{
-                                        width: `${
-                                            jobStats.total
-                                                ? (
-                                                    jobStats.closed /
-                                                    jobStats.total
-                                                ) * 100
-                                                : 0
-                                        }%`,
-                                    }}
-                                />
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols">
 
 
                 <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-[#111827] p-6">
@@ -970,7 +1639,7 @@ function Home() {
 
 
 
-                        <div className="flex flex-col justify-center gap-5">
+                        <div className="flex flex-col justify-center gap-5 ">
 
                             <StatusItem
                                 label="Accepted"
@@ -1220,7 +1889,7 @@ function StatusItem({
                     className={`h-3 w-3 rounded-full ${color}`}
                 />
 
-                <span className="text-sm text-slate-300">
+                <span className="text-xl font-semibold text-slate-300">
                     {label}
                 </span>
 
