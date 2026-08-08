@@ -18,7 +18,7 @@ export const getStartupBuilderProfile = async () => {
 };
 
 export const updateStartupBuilderProfile = async (profileData) => {
-    const response = await api.put(
+    const response = await api.patch(
         "/startup-builder/profile",
         profileData
     );

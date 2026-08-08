@@ -88,43 +88,39 @@ await user.save({
 });
 
 const getProfessionalProfile = asyncHandler(async (req, res) => {
+const user = await User.findById(req.user._id);
 
-    const professionalProfile =
-        await ProfessionalProfile.findOne({
-            user: req.user._id,
-        });
+const professionalProfile = await ProfessionalProfile.findOne({
+    user: req.user._id,
+});
 
-    if (!professionalProfile) {
-        throw new ApiError(
-            404,
-            "Professional profile not found"
-        );
-    }
+if (!professionalProfile) {
+    throw new ApiError(404, "Professional profile not found");
+}
 
-    return res.status(201).json(
+return res.status(200).json(
     new ApiResponse(
-        201,
+        200,
         {
             professionalProfile,
             user,
         },
-        "Professional profile created successfully"
+        "Professional profile fetched successfully"
     )
 );
 });
 
 const updateProfessionalProfile = asyncHandler(async (req, res) => {
-    const {
-        headline,
-        skills,
-        experience,
-        education,
-        location,
-        bio,
-        linkedin,
-        portfolio,
-        resume,
-    } = req.body;
+const {
+    headline,
+    skills,
+    experience,
+    education,
+    github,
+    linkedin,
+    portfolio,
+    resume,
+} = req.body;
 
     const professionalProfile =
         await ProfessionalProfile.findOne({
@@ -145,47 +141,30 @@ const updateProfessionalProfile = asyncHandler(async (req, res) => {
         );
     }
 
-    if (location !== undefined && !location.trim()) {
-        throw new ApiError(
-            400,
-            "Location cannot be empty"
-        );
-    }
-
-    if (bio !== undefined && !bio.trim()) {
-        throw new ApiError(
-            400,
-            "Bio cannot be empty"
-        );
-    }
 
     professionalProfile.headline =
-        headline ?? professionalProfile.headline;
+    headline ?? professionalProfile.headline;
 
-    professionalProfile.skills =
-        skills ?? professionalProfile.skills;
+professionalProfile.skills =
+    skills ?? professionalProfile.skills;
 
-    professionalProfile.experience =
-        experience ?? professionalProfile.experience;
+professionalProfile.experience =
+    experience ?? professionalProfile.experience;
 
-    professionalProfile.education =
-        education ?? professionalProfile.education;
+professionalProfile.education =
+    education ?? professionalProfile.education;
 
-        professionalProfile.github =
-    github?.toLowerCase() ??
-    professionalProfile.github;
+professionalProfile.github =
+    github ?? professionalProfile.github;
 
-    professionalProfile.linkedin =
-        linkedin?.toLowerCase() ??
-        professionalProfile.linkedin;
+professionalProfile.linkedin =
+    linkedin ?? professionalProfile.linkedin;
 
-    professionalProfile.portfolio =
-        portfolio?.toLowerCase() ??
-        professionalProfile.portfolio;
+professionalProfile.portfolio =
+    portfolio ?? professionalProfile.portfolio;
 
-    professionalProfile.resume =
-        resume ?? professionalProfile.resume;
-
+professionalProfile.resume =
+    resume ?? professionalProfile.resume;
     await professionalProfile.save();
 
     return res.status(200).json(

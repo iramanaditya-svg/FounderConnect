@@ -11,7 +11,7 @@ export const createProfessionalProfile = async (profileData) => {
 
 export const getProfessionalProfile = async () => {
     const response = await api.get(
-        "/professionals/profile"
+        "/professional/profile"
     );
 
     return response.data;
@@ -19,7 +19,7 @@ export const getProfessionalProfile = async () => {
 
 export const updateProfessionalProfile = async (profileData) => {
     const response = await api.patch(
-        "/professionals/profile",
+        "/professional/profile",
         profileData
     );
 
@@ -28,7 +28,7 @@ export const updateProfessionalProfile = async (profileData) => {
 
 export const deleteProfessionalProfile = async () => {
     const response = await api.delete(
-        "/professionals/profile"
+        "/professional/profile"
     );
 
     return response.data;

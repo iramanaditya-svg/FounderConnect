@@ -7,7 +7,23 @@ import ProfessionalProfile from "../models/professionalProfile.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
+const checkResume = asyncHandler(async (req, res) => {
 
+    const profile = await ProfessionalProfile.findOne({
+        user: req.user._id,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+                hasResume: !!profile?.resume,
+            },
+            "Resume status fetched successfully"
+        )
+    );
+
+});
 
 const applyForJob = asyncHandler(async (req, res) => {
     const { jobId } = req.params;
@@ -163,28 +179,54 @@ const getJobApplicants = asyncHandler(async (req, res) => {
         );
     }
 
-    const applications =
-        await JobApplication.find({
-            job: jobId,
-        })
-            .populate(
-                "applicant",
-                "fullName username profilePicture"
-            )
-            .sort({
-                createdAt: -1,
-            });
+const applications = await JobApplication.find({
+    job: jobId,
+})
+    .populate(
+        "applicant",
+        "fullName username profilePicture"
+    )
+    .populate({
+        path: "job",
+        populate: {
+            path: "startup",
+            select: "name logo location",
+        },
+    })
+    .sort({
+        createdAt: -1,
+    });
 
-    return res.status(200).json(
-        new ApiResponse(
-            200,
-            {
-                applicantCount: applications.length,
-                applications,
-            },
-            "Applicants fetched successfully"
-        )
+const applicationsWithProfiles =
+    await Promise.all(
+
+        applications.map(async (application) => {
+
+            const professionalProfile =
+                await ProfessionalProfile.findOne({
+                    user: application.applicant._id,
+                }).select(
+                    "headline skills resume linkedin portfolio"
+                );
+
+            return {
+                ...application.toObject(),
+                professionalProfile,
+            };
+
+        })
+
     );
+    return res.status(200).json(
+    new ApiResponse(
+        200,
+        {
+            applicantCount: enrichedApplications.length,
+            applications: enrichedApplications,
+        },
+        "Applicants fetched successfully"
+    )
+);
 });
 
 const updateApplicationStatus = asyncHandler(async (req, res) => {
@@ -347,4 +389,5 @@ export {
     getJobApplicants,
     updateApplicationStatus,
     withdrawApplication,
+checkResume,
 };

@@ -8,9 +8,16 @@ import {
     getJobApplicants,
     updateApplicationStatus,
     withdrawApplication,
+    checkResume
 } from "../controllers/jobApplication.controller.js";
 
 const router = Router();
+router
+    .route("/professional/check-resume")
+    .get(
+        verifyJWT,
+        checkResume
+    );
 
 router
     .route("/jobs/:jobId/apply")

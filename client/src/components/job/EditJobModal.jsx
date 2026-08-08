@@ -1,22 +1,21 @@
 import axios from "axios";
 
 import JobForm from "./JobForm";
-
-function PostJobModal({
+function EditJobModal({
     open,
     onClose,
-    startupId,
+    job,
     onSuccess,
 }) {
 
-    if (!open) return null;
+    if (!open || !job) return null;
 
     const handleSubmit = async (formData) => {
 
         try {
 
-            const response = await axios.post(
-                `http://localhost:8000/api/v1/startups/${startupId}/jobs`,
+            const response = await axios.patch(
+                `http://localhost:8000/api/v1/jobs/${job._id}`,
                 formData,
                 {
                     withCredentials: true,
@@ -35,7 +34,7 @@ function PostJobModal({
 
             alert(
                 error.response?.data?.message ||
-                "Failed to create job."
+                "Failed to update job."
             );
 
         }
@@ -53,11 +52,11 @@ function PostJobModal({
                     <div>
 
                         <h2 className="text-3xl font-bold text-white">
-                            Post New Job
+                            Edit Job
                         </h2>
 
                         <p className="mt-2 text-slate-400">
-                            Create a new opportunity for professionals.
+                            Update your job posting.
                         </p>
 
                     </div>
@@ -72,7 +71,8 @@ function PostJobModal({
                 </div>
 
                 <JobForm
-                    submitText="Publish Job"
+                    initialData={job}
+                    submitText="Save Changes"
                     onSubmit={handleSubmit}
                 />
 
@@ -84,4 +84,4 @@ function PostJobModal({
 
 }
 
-export default PostJobModal;
+export default EditJobModal;

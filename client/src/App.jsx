@@ -13,7 +13,12 @@ import StartupDetails from "./pages/dashboard/StartupDetails";
 import ManageStartup from "./pages/dashboard/ManageStartup";
 import MyJobs from "./pages/dashboard/startup_builder/MyJobs";
 import ManageJobs from "./pages/dashboard/startup_builder/ManageJobs";
-
+import EditProfile from "./pages/dashboard/EditProfile";
+import AppliedJobs from "./pages/professional/AppliedJobs";
+import StartupBuilderForm from "./components/completeProfile/StartupBuilderForm";
+import Applicants from "./pages/dashboard/startup_builder/Applicants";
+import ApplicantDetails from "./pages/dashboard/startup_builder/ApplicantDetails";
+import JobApplicants from "./pages/dashboard/startup_builder/JobApplicants";
 function App() {
     return (
         <Routes>
@@ -45,13 +50,30 @@ function App() {
         path="startups/:startupId"
         element={<StartupDetails />}
     />
+    <Route
+    path="edit-profile"
+    element={<EditProfile />}
+/>
+<Route
+    path="applied-jobs"
+    element={<AppliedJobs />}
+/>
 </Route>
 
 
-<Route path="/startup_builder/dashboard" element={<DashboardLayout />}>
-    <Route index element={<Home />} />
+<Route
+    path="/startup_builder/dashboard"
+    element={<DashboardLayout />}
+>
+    <Route
+        index
+        element={<Home />}
+    />
 
-    <Route path="my-startups" element={<MyStartups />} />
+    <Route
+        path="my-startups"
+        element={<MyStartups />}
+    />
 
     <Route
         path="my-startups/:startupId"
@@ -66,6 +88,24 @@ function App() {
     <Route
         path="my-jobs/:startupId"
         element={<ManageJobs />}
+    />
+
+<Route
+    path="applicants"
+    element={<Applicants />}
+/>
+<Route
+    path="my-jobs/:jobId/applicants"
+    element={<JobApplicants />}
+/>
+<Route
+    path="applicants/:applicationId"
+    element={<ApplicantDetails />}
+/>
+
+    <Route
+        path="edit-profile"
+        element={<StartupBuilderForm mode="edit" />}
     />
 </Route>
 

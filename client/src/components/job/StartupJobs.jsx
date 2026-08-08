@@ -1,10 +1,38 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-// import StartupJobCard from "./StartupJobCard";
+import StartupJobCard from "../startup/StartupJobCard";
 
 function StartupJobs({ startupId }) {
+    const [appliedJobs, setAppliedJobs] = useState([]);
+    const fetchAppliedJobs = async () => {
 
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/api/v1/applications/my",
+            {
+                withCredentials: true,
+            }
+        );
+
+        setAppliedJobs(
+
+            response.data.data.applications.map(
+
+                (application) => application.job._id
+
+            )
+
+        );
+
+    } catch (error) {
+
+        console.log(error);
+
+    }
+
+};
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -29,9 +57,15 @@ function StartupJobs({ startupId }) {
 
     };
 
-    useEffect(() => {
-        fetchJobs();
-    }, [startupId]);
+useEffect(() => {
+
+    fetchJobs();
+
+    fetchAppliedJobs();
+
+}, [startupId]);
+
+
 
     if (loading) {
         return (
@@ -55,9 +89,11 @@ function StartupJobs({ startupId }) {
             {jobs.map((job) => (
 
                 <StartupJobCard
-                    key={job._id}
-                    job={job}
-                />
+    key={job._id}
+    job={job}
+    alreadyApplied={appliedJobs.includes(job._id)}
+    onApplied={fetchAppliedJobs}
+/>
 
             ))}
 

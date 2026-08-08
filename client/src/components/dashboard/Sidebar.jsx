@@ -8,13 +8,17 @@ import {
     Building2,
     TrendingUp,
     LogOut,
+    ChevronDown,
+    UserCog,
+    KeyRound,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { useState } from "react";
 
 function Sidebar() {
-
+const [settingsOpen, setSettingsOpen] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
 
     let menu = [];
@@ -46,11 +50,6 @@ function Sidebar() {
                 icon: Users,
                 path: "/professional/dashboard/connections",
             },
-            {
-                title: "Settings",
-                icon: Settings,
-                path: "/professional/dashboard/settings",
-            },
         ];
     }
 
@@ -81,11 +80,7 @@ function Sidebar() {
                 icon: Bell,
                 path: "/startup_builder/dashboard/notifications",
             },
-            {
-                title: "Settings",
-                icon: Settings,
-                path: "/startup_builder/dashboard/settings",
-            },
+
         ];
     }
 
@@ -184,7 +179,93 @@ function Sidebar() {
                         </NavLink>
                     );
                 })}
+    <div className="px-4">
 
+    <button
+        onClick={() => setSettingsOpen(!settingsOpen)}
+        className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-slate-400 transition hover:bg-white/5 hover:text-white"
+    >
+
+        <div className="flex items-center gap-4">
+
+            <Settings size={21} />
+
+            <span className="font-medium">
+                Settings
+            </span>
+
+        </div>
+
+        <ChevronDown
+            size={18}
+            className={`transition duration-300 ${
+                settingsOpen
+                    ? "rotate-180"
+                    : ""
+            }`}
+        />
+
+    </button>
+
+    <div
+        className={`overflow-hidden transition-all duration-300 ${
+            settingsOpen
+                ? "mt-2 max-h-40"
+                : "max-h-0"
+        }`}
+    >
+
+        <NavLink
+            to={`/${user.activeRole}/dashboard/edit-profile`}
+        >
+
+            {({ isActive }) => (
+
+                <div
+                    className={`ml-5 flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                        isActive
+                            ? "bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white"
+                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                >
+
+                    <UserCog size={18} />
+
+                    Edit Profile
+
+                </div>
+
+            )}
+
+        </NavLink>
+
+        <NavLink
+            to={`/${user.activeRole}/dashboard/change-password`}
+        >
+
+            {({ isActive }) => (
+
+                <div
+                    className={`ml-5 mt-2 flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                        isActive
+                            ? "bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white"
+                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                >
+
+                    <KeyRound size={18} />
+
+                    Change Password
+
+                </div>
+
+            )}
+
+        </NavLink>
+
+    </div>
+
+</div>
             </nav>
 <div className="border-t border-white/10 p-4">
 
@@ -213,8 +294,15 @@ function Sidebar() {
         </div>
 
         <button
-            className="rounded-xl p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
-        >
+    onClick={() => {
+
+        localStorage.clear();
+
+        window.location.href = "/login";
+
+    }}
+    className="rounded-xl p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
+>
 
             <LogOut size={18} />
 

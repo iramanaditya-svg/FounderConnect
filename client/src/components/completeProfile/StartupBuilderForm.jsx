@@ -1,106 +1,292 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+    useState,
+    useEffect,
+} from "react";
+
+import {
+    useNavigate,
+    useLocation,
+} from "react-router-dom";
 
 import InputField from "../ui/InputField";
 import SelectField from "../ui/SelectField";
 import TextAreaField from "../ui/TextAreaField";
 
-import { createStartupBuilderProfile } from "../../services/api/startupBuilder.service";
+import {
+    createStartupBuilderProfile,
+    getStartupBuilderProfile,
+    updateStartupBuilderProfile,
+} from "../../services/api/startupBuilder.service";
 
-function StartupBuilderForm() {
+function StartupBuilderForm({
+    mode = "create",
+}) {
+
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [formData, setFormData] = useState({
+
         headline: "",
+
         experience: "",
+
         location: "",
+
         bio: "",
+
         linkedin: "",
+
         website: "",
+
     });
 
     const [errors, setErrors] = useState({});
 
+    useEffect(() => {
+
+        if (mode !== "edit") return;
+
+        const fetchProfile = async () => {
+
+            try {
+
+                const response =
+                    await getStartupBuilderProfile();
+
+                const profile =
+                    response.data.data
+                        .startupBuilderProfile;
+
+                setFormData({
+
+                    headline:
+                        profile.headline || "",
+
+                    experience:
+                        profile.experience || "",
+
+                    location:
+                        profile.location || "",
+
+                    bio:
+                        profile.bio || "",
+
+                    linkedin:
+                        profile.linkedin || "",
+
+                    website:
+                        profile.website || "",
+
+                });
+
+            }
+
+            catch (error) {
+
+                console.log(error);
+
+            }
+
+        };
+
+        fetchProfile();
+
+    }, [mode]);
+
     const validateForm = () => {
+
         const newErrors = {};
 
         if (!formData.headline.trim()) {
-            newErrors.headline = "Headline is required.";
+
+            newErrors.headline =
+                "Headline is required.";
+
         }
 
         if (!formData.location.trim()) {
-            newErrors.location = "Location is required.";
+
+            newErrors.location =
+                "Location is required.";
+
         }
 
         if (!formData.bio.trim()) {
-            newErrors.bio = "Bio is required.";
+
+            newErrors.bio =
+                "Bio is required.";
+
         }
 
         setErrors(newErrors);
 
-        return Object.keys(newErrors).length === 0;
+        return (
+            Object.keys(newErrors).length === 0
+        );
+
     };
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
 
         if (!validateForm()) return;
 
         try {
-            const response = await createStartupBuilderProfile(formData);
 
-            console.log(response);
+            if (mode === "edit") {
 
-const user = JSON.parse(localStorage.getItem("user"));
+                await updateStartupBuilderProfile(
+                    formData
+                );
 
-navigate(`/${user.activeRole}/dashboard`);
-        } catch (error) {
-            console.error(error);
+                alert(
+                    "Profile updated successfully."
+                );
+
+            }
+
+            else {
+
+                await createStartupBuilderProfile(
+                    formData
+                );
+
+                const user = JSON.parse(
+                    localStorage.getItem("user")
+                );
+
+                user.isProfileCompleted = true;
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(user)
+                );
+
+            }
+
+            const returnTo =
+                location.state?.returnTo;
+
+            if (returnTo) {
+
+                navigate(returnTo, {
+                    state: location.state,
+                    replace: true,
+                });
+
+            }
+
+            else {
+
+                const user = JSON.parse(
+                    localStorage.getItem("user")
+                );
+
+                navigate(
+                    `/${user.activeRole}/dashboard`,
+                    {
+                        replace: true,
+                    }
+                );
+
+            }
+
         }
+
+        catch (error) {
+
+            console.error(error);
+
+            alert(
+                error.response?.data?.message ||
+                "Something went wrong."
+            );
+
+        }
+
     };
 
     return (
+
         <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{
+                opacity: 0,
+                y: 25,
+            }}
+            animate={{
+                opacity: 1,
+                y: 0,
+            }}
+            transition={{
+                duration: 0.5,
+            }}
             className="mx-auto mt-16 w-full max-w-6xl"
         >
+
             <div className="rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl">
+
                 <div className="text-center">
+
                     <h1 className="text-4xl font-bold text-white">
-                        Complete Your Profile
+
+                        {
+                            mode === "edit"
+                                ? "Edit Profile"
+                                : "Complete Your Profile"
+                        }
+
                     </h1>
 
                     <p className="mt-4 text-lg text-gray-400">
-                        Build your Startup Builder profile and connect with founders,
-                        investors and professionals.
+
+                        {
+                            mode === "edit"
+                                ? "Update your Startup Builder profile."
+                                : "Build your Startup Builder profile and connect with founders, investors and professionals."
+                        }
+
                     </p>
+
                 </div>
 
                 <form onSubmit={handleSubmit}>
+
                     <div className="mt-10 flex flex-col items-center">
+
                         <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-dashed border-blue-500/50 bg-[#111827] transition-all duration-300 hover:scale-105 hover:border-blue-400 hover:bg-[#1b2435] hover:cursor-pointer">
+
                             <span className="text-4xl text-blue-400">
+
                                 +
+
                             </span>
+
                         </div>
 
                         <p className="mt-4 text-sm font-medium text-white">
+
                             Upload Profile Photo
+
                         </p>
 
                         <p className="mt-1 text-xs text-gray-500">
+
                             PNG, JPG • Max 5 MB
+
                         </p>
+
                     </div>
 
                     <div className="my-10 h-px bg-white/10" />
 
                     <div className="grid grid-cols-2 gap-8">
-                        <div className="space-y-6">
+                                                <div className="space-y-6">
+
                             <div>
+
                                 <InputField
                                     label="Headline"
                                     required
@@ -115,13 +301,19 @@ navigate(`/${user.activeRole}/dashboard`);
                                 />
 
                                 {errors.headline && (
+
                                     <p className="mt-2 text-sm text-red-500">
+
                                         {errors.headline}
+
                                     </p>
+
                                 )}
+
                             </div>
 
                             <div>
+
                                 <InputField
                                     label="Location"
                                     required
@@ -136,14 +328,21 @@ navigate(`/${user.activeRole}/dashboard`);
                                 />
 
                                 {errors.location && (
+
                                     <p className="mt-2 text-sm text-red-500">
+
                                         {errors.location}
+
                                     </p>
+
                                 )}
+
                             </div>
+
                         </div>
 
                         <div className="space-y-6">
+
                             <SelectField
                                 label="Experience"
                                 value={formData.experience}
@@ -163,6 +362,7 @@ navigate(`/${user.activeRole}/dashboard`);
                             />
 
                             <div>
+
                                 <TextAreaField
                                     label="Bio"
                                     required
@@ -178,24 +378,37 @@ navigate(`/${user.activeRole}/dashboard`);
                                 />
 
                                 {errors.bio && (
+
                                     <p className="mt-2 text-sm text-red-500">
+
                                         {errors.bio}
+
                                     </p>
+
                                 )}
+
                             </div>
+
                         </div>
+
                     </div>
 
                     <div className="my-10 h-px bg-white/10" />
 
                     <h2 className="text-2xl font-semibold text-white">
+
                         Professional Links
+
                         <span className="ml-2 text-sm font-normal text-gray-500">
+
                             (Optional)
+
                         </span>
+
                     </h2>
 
                     <div className="mt-6 space-y-6">
+
                         <InputField
                             label="LinkedIn"
                             placeholder="https://linkedin.com/in/username"
@@ -219,39 +432,81 @@ navigate(`/${user.activeRole}/dashboard`);
                                 })
                             }
                         />
+
                     </div>
 
                     <div className="my-10 h-px bg-white/10" />
+                                        <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
 
-                    <div className="mt-10 flex items-center justify-between border-t border-white/10 pt-8">
-                        <div>
-                            <button
-                                type="button"
-                                    onClick={() => {
-        const user = JSON.parse(localStorage.getItem("user"));
-        navigate(`/${user.activeRole}/dashboard`);
-    }}
-                                className="text-sm font-medium text-gray-400 transition duration-300 hover:text-white hover:cursor-pointer"
-                            >
-                                Skip for now
-                            </button>
+                        {
 
-                            <p className="mt-2 max-w-xs text-xs text-gray-500">
-                                You can complete your profile later from your dashboard before creating or managing your startups.
-                            </p>
-                        </div>
+                            mode === "create" && (
+
+                                <div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+
+                                            const user = JSON.parse(
+                                                localStorage.getItem("user")
+                                            );
+
+                                            navigate(
+                                                `/${user.activeRole}/dashboard`
+                                            );
+
+                                        }}
+                                        className="text-sm font-medium text-gray-400 transition duration-300 hover:cursor-pointer hover:text-white"
+                                    >
+
+                                        Skip for now
+
+                                    </button>
+
+                                    <p className="mt-2 max-w-xs text-xs text-gray-500">
+
+                                        You can complete your profile later from your dashboard before creating or managing your startups.
+
+                                    </p>
+
+                                </div>
+
+                            )
+
+                        }
 
                         <button
                             type="submit"
-                            className="rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-10 py-3 text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/30 hover:cursor-pointer"
+                            className="rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-10 py-3 text-lg font-semibold text-white transition-all duration-300 hover:scale-105 hover:cursor-pointer hover:shadow-lg hover:shadow-blue-500/30"
                         >
-                            Complete Profile →
+
+                            {
+
+                                mode === "edit"
+
+                                    ?
+
+                                    "Save Changes"
+
+                                    :
+
+                                    "Complete Profile →"
+
+                            }
+
                         </button>
+
                     </div>
+
                 </form>
+
             </div>
+
         </motion.div>
+
     );
+
 }
 
 export default StartupBuilderForm;

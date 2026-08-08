@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import StartupJobs from "../../components/job/StartupJobs";
 import axios from "axios";
+
+import StartupJobs from "../../components/job/StartupJobs";
+
 import {
     Building2,
     MapPin,
@@ -16,8 +18,35 @@ function StartupDetails() {
 
     const [startup, setStartup] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [appliedJobs, setAppliedJobs] = useState([]);
+    const fetchAppliedJobs = async () => {
+
+    try {
+
+        const response = await axios.get(
+            "http://localhost:8000/api/v1/applications/my",
+            {
+                withCredentials: true,
+            }
+        );
+
+        setAppliedJobs(
+            response.data.data.applications
+                .map((app) => app.job._id)
+        );
+
+    }
+
+    catch (error) {
+
+        console.log(error);
+
+    }
+
+};
 
     const fetchStartup = async () => {
+
         try {
 
             const response = await axios.get(
@@ -30,36 +59,56 @@ function StartupDetails() {
             setStartup(response.data.data);
 
         } catch (error) {
+
             console.log(error);
+
         } finally {
+
             setLoading(false);
+
         }
+
     };
 
     useEffect(() => {
+
         fetchStartup();
+            fetchAppliedJobs();
+
+
     }, [startupId]);
 
     if (loading) {
+
         return (
+
             <div className="flex h-96 items-center justify-center text-xl text-slate-400">
+
                 Loading Startup...
+
             </div>
+
         );
+
     }
 
     if (!startup) {
+
         return (
+
             <div className="flex h-96 items-center justify-center text-xl text-red-400">
+
                 Startup not found.
+
             </div>
+
         );
+
     }
 
     return (
-        <div className="mx-auto max-w-6xl space-y-8">
 
-            {/* Hero */}
+        <div className="mx-auto max-w-7xl space-y-8">
 
             <div className="rounded-3xl border border-white/10 bg-[#111827] p-8">
 
@@ -70,7 +119,7 @@ function StartupDetails() {
                         <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-[#2563EB] to-[#7C3AED]">
 
                             <Building2
-                                size={45}
+                                size={44}
                                 className="text-white"
                             />
 
@@ -79,22 +128,59 @@ function StartupDetails() {
                         <div>
 
                             <h1 className="text-4xl font-bold text-white">
+
                                 {startup.name}
+
                             </h1>
 
                             <p className="mt-3 text-lg text-slate-400">
+
                                 {startup.tagline}
+
                             </p>
 
-                            <div className="mt-5 flex flex-wrap gap-2">
+                            <div className="mt-5 flex flex-wrap items-center gap-5 text-sm text-slate-400">
+
+                                <div className="flex items-center gap-2">
+
+                                    <MapPin size={16} />
+
+                                    {startup.location}
+
+                                </div>
+
+                                {startup.website && (
+
+                                    <a
+                                        href={startup.website}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="flex items-center gap-2 text-blue-400 transition hover:underline"
+                                    >
+
+                                        <Globe size={16} />
+
+                                        Visit Website
+
+                                    </a>
+
+                                )}
+
+                            </div>
+
+                            <div className="mt-6 flex flex-wrap gap-2">
 
                                 {startup.industry?.map((item) => (
+
                                     <span
                                         key={item}
-                                        className="rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-300"
+                                        className="rounded-full bg-violet-500/20 px-3 py-1 text-sm text-violet-300"
                                     >
+
                                         {item}
+
                                     </span>
+
                                 ))}
 
                             </div>
@@ -103,60 +189,72 @@ function StartupDetails() {
 
                     </div>
 
-                    <span className="h-fit rounded-full bg-purple-500/20 px-4 py-2 text-purple-300">
-                        {startup.stage}
+                    <span className="h-fit rounded-full bg-violet-500/20 px-4 py-2 text-sm font-semibold capitalize text-violet-300">
+
+                        {startup.stage.replace("_", " ")}
+
                     </span>
 
                 </div>
 
             </div>
 
-            {/* Details */}
-
             <div className="grid gap-6 lg:grid-cols-3">
 
                 <div className="space-y-6 lg:col-span-2">
 
-                    <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+                    <div className="rounded-3xl border border-white/10 bg-[#111827] p-7">
 
                         <h2 className="text-2xl font-semibold text-white">
+
                             About Startup
+
                         </h2>
-                                
-                        <p className="mt-5 leading-8 text-slate-300">
-                            {startup.description}
+
+                        <p className="mt-5 min-h-[120px] whitespace-pre-wrap leading-8 text-slate-300">
+
+                            {startup.description || "No description available."}
+
                         </p>
 
                     </div>
-                    <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
 
-    <h2 className="text-2xl font-semibold text-white">
-        Open Positions
-    </h2>
+                    <div className="rounded-3xl border border-white/10 bg-[#111827] p-7">
 
-    <div className="mt-6">
+                        <h2 className="text-2xl font-semibold text-white">
 
-        <StartupJobs startupId={startupId} />
+                            Open Positions
 
-    </div>
+                        </h2>
 
-</div>
+                        <div className="mt-6">
+
+                            <StartupJobs startupId={startupId} />
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                <div>
+                                <div>
 
-                    <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
+                    <div className="rounded-3xl border border-white/10 bg-[#111827] p-7">
 
-                        <h2 className="text-xl font-semibold text-white">
+                        <h2 className="text-2xl font-semibold text-white">
+
                             Startup Information
+
                         </h2>
 
-                        <div className="mt-6 space-y-5">
+                        <div className="mt-8 space-y-7">
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-start gap-4">
 
-                                <User className="text-slate-400" />
+                                <User
+                                    className="mt-1 text-slate-400"
+                                    size={20}
+                                />
 
                                 <div>
 
@@ -164,17 +262,20 @@ function StartupDetails() {
                                         Founder
                                     </p>
 
-                                    <p className="text-white">
-                                        {startup.founder?.fullName}
+                                    <p className="mt-1 font-medium text-white">
+                                        {startup.founder?.fullName || "Not Available"}
                                     </p>
 
                                 </div>
 
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-start gap-4">
 
-                                <MapPin className="text-slate-400" />
+                                <MapPin
+                                    className="mt-1 text-slate-400"
+                                    size={20}
+                                />
 
                                 <div>
 
@@ -182,17 +283,20 @@ function StartupDetails() {
                                         Location
                                     </p>
 
-                                    <p className="text-white">
-                                        {startup.location}
+                                    <p className="mt-1 font-medium text-white">
+                                        {startup.location || "Not Available"}
                                     </p>
 
                                 </div>
 
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-start gap-4">
 
-                                <CircleDollarSign className="text-slate-400" />
+                                <CircleDollarSign
+                                    className="mt-1 text-slate-400"
+                                    size={20}
+                                />
 
                                 <div>
 
@@ -200,45 +304,57 @@ function StartupDetails() {
                                         Funding Goal
                                     </p>
 
-                                    <p className="text-white">
-                                        ₹
+                                    <p className="mt-1 font-medium text-white">
+
                                         {startup.fundingGoal
-                                            ? startup.fundingGoal.toLocaleString()
+                                            ? `₹ ${startup.fundingGoal.toLocaleString()}`
                                             : "Not Specified"}
+
                                     </p>
 
                                 </div>
 
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-start gap-4">
 
-                                <Globe className="text-slate-400" />
+                                <Globe
+                                    className="mt-1 text-slate-400"
+                                    size={20}
+                                />
 
-                                <div>
+                                <div className="min-w-0">
 
                                     <p className="text-sm text-slate-500">
                                         Website
                                     </p>
 
-                                    <a
-                                        href={startup.website}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-blue-400 hover:underline"
-                                    >
-                                        {startup.website || "Not Available"}
-                                    </a>
+                                    {startup.website ? (
+
+                                        <a
+                                            href={startup.website}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="block truncate font-medium text-blue-400 transition hover:underline"
+                                        >
+
+                                            Visit Website ↗
+
+                                        </a>
+
+                                    ) : (
+
+                                        <p className="mt-1 font-medium text-white">
+                                            Not Available
+                                        </p>
+
+                                    )}
 
                                 </div>
 
                             </div>
 
                         </div>
-
-                        <button className="mt-8 w-full rounded-xl bg-gradient-to-r from-[#2563EB] to-[#7C3AED] py-3 font-semibold text-white transition hover:opacity-90">
-                            Apply Now
-                        </button>
 
                     </div>
 
@@ -247,7 +363,9 @@ function StartupDetails() {
             </div>
 
         </div>
+
     );
+
 }
 
 export default StartupDetails;
