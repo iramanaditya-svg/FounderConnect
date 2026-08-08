@@ -182,21 +182,20 @@ const getJobApplicants = asyncHandler(async (req, res) => {
 const applications = await JobApplication.find({
     job: jobId,
 })
-    .populate(
-        "applicant",
-        "fullName username profilePicture"
-    )
-    .populate({
-        path: "job",
-        populate: {
-            path: "startup",
-            select: "name logo location",
-        },
-    })
-    .sort({
-        createdAt: -1,
-    });
-
+.populate(
+    "applicant",
+    "fullName username profilePicture email"
+)
+.populate({
+    path: "job",
+    populate: {
+        path: "startup",
+        select: "name logo location",
+    },
+})
+.sort({
+    createdAt: -1,
+});
 const applicationsWithProfiles =
     await Promise.all(
 
@@ -209,10 +208,15 @@ const applicationsWithProfiles =
                     "headline skills resume linkedin portfolio"
                 );
 
-            return {
-                ...application.toObject(),
-                professionalProfile,
-            };
+return {
+
+    ...application.toObject(),
+
+    professionalProfile,
+
+    startup: application.job.startup,
+
+};
 
         })
 
@@ -221,8 +225,11 @@ const applicationsWithProfiles =
     new ApiResponse(
         200,
         {
-            applicantCount: enrichedApplications.length,
-            applications: enrichedApplications,
+applicantCount:
+    applicationsWithProfiles.length,
+
+            applications:
+                applicationsWithProfiles,
         },
         "Applicants fetched successfully"
     )
