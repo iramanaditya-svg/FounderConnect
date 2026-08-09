@@ -34,19 +34,34 @@ function InvestorForm() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
     try {
-        const response = await createInvestorProfile(formData);
+        const response =
+            await createInvestorProfile(formData);
 
         console.log(response);
 
-const user = JSON.parse(localStorage.getItem("user"));
+        const user = JSON.parse(
+            localStorage.getItem("user")
+        );
 
-navigate(`/${user.activeRole}/dashboard`);
+        user.isProfileCompleted = true;
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
+
+        navigate(
+            `/${user.activeRole}/dashboard`,
+            {
+                replace: true,
+            }
+        );
     } catch (error) {
         console.error(error);
 

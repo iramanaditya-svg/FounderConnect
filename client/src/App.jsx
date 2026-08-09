@@ -20,7 +20,10 @@ import Applicants from "./pages/dashboard/startup_builder/Applicants";
 import ApplicantDetails from "./pages/dashboard/startup_builder/ApplicantDetails";
 import JobApplicants from "./pages/dashboard/startup_builder/JobApplicants";
 import ActiveApplications from "./pages/professional/ActiveApplications";
-import InvestorDashboard from "./pages/dashboard/investor/InvestorDashboard";
+import ActiveInvestments from "./pages/dashboard/investor/ActiveInvestments";
+import InvestedCompanies from "./pages/dashboard/investor/InvestedCompanies";
+import InvestorStartups from "./pages/dashboard/investor/InvestorStartups";
+import InvestorStartupDetails from "./pages/dashboard/investor/InvestorStartupDetails";
 function App() {
     return (
         <Routes>
@@ -131,6 +134,22 @@ function App() {
         index
         element={<Home />}
     />
+    <Route
+    path="active-investments"
+    element={<ActiveInvestments />}
+/>
+<Route
+    path="invested-companies"
+    element={<InvestedCompanies />}
+/>
+<Route
+    path="startups"
+    element={<InvestorStartups />}
+/>
+<Route
+    path="startups/:startupId"
+    element={<InvestorStartupDetails />}
+/>
 </Route>
         </Routes>
     );

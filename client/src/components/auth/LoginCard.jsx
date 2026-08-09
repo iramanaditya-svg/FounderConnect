@@ -1,5 +1,6 @@
 import logo from "../../assets/logo.png";
 import { loginUser } from "../../services/api/auth.service";
+import { getInvestorProfile } from "../../services/api/investor.service";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -19,26 +20,63 @@ function LoginCard() {
         });
     };
 
-    const handleSubmit = async () => {
-        try {
-            const response = await loginUser(formData);
+const handleSubmit = async () => {
+    try {
+        const response = await loginUser(formData);
 
-            const user = response.data.user;
+        const user = response.data.user;
 
-localStorage.setItem("user", JSON.stringify(user));
+        if (!user.activeRole) {
+            localStorage.setItem(
+                "user",
+                JSON.stringify(user)
+            );
 
-if (!user.activeRole) {
-    navigate("/select-role");
-} else if (!user.isProfileCompleted) {
-    navigate(`/${user.activeRole}/complete-profile`);
-} else {
-    navigate(`/${user.activeRole}/dashboard`);
-}
-
-        } catch (error) {
-            console.error(error);
+            navigate("/select-role");
+            return;
         }
-    };
+
+        /*
+         * Investor profile existence is checked separately
+         * because the login response may not have the correct
+         * isProfileCompleted value.
+         */
+        if (user.activeRole === "investor") {
+            try {
+                await getInvestorProfile();
+
+                user.isProfileCompleted = true;
+            } catch (error) {
+                if (error.response?.status === 404) {
+                    user.isProfileCompleted = false;
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        localStorage.setItem(
+            "user",
+            JSON.stringify(user)
+        );
+
+        if (!user.isProfileCompleted) {
+            navigate(
+                `/${user.activeRole}/complete-profile`
+            );
+        } else {
+            navigate(
+                `/${user.activeRole}/dashboard`
+            );
+        }
+
+    } catch (error) {
+        console.error(
+            "Login error:",
+            error.response?.data || error
+        );
+    }
+};
     return (
         <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl bg-white/[0.06] border-white/15 shadow-2xl shadow-violet-500/10">
 

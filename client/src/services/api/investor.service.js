@@ -45,3 +45,15 @@ export const getMyInvestments = async () => {
 
     return response.data;
 };
+
+export const createInvestmentRequest = async (
+    startupId,
+    investmentData
+) => {
+    const response = await api.post(
+        `/startups/${startupId}/investments`,
+        investmentData
+    );
+
+    return response.data;
+};

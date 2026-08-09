@@ -85,39 +85,44 @@ const [settingsOpen, setSettingsOpen] = useState(false);
     }
 
     else if (user?.activeRole === "investor") {
-        menu = [
-            {
-                title: "Home",
-                icon: Home,
-                path: "/investor/dashboard",
-            },
-            {
-                title: "Portfolio",
-                icon: TrendingUp,
-                path: "/investor/dashboard/portfolio",
-            },
-            {
-                title: "Startups",
-                icon: Building2,
-                path: "/investor/dashboard/startups",
-            },
-            {
-                title: "Notifications",
-                icon: Bell,
-                path: "/investor/dashboard/notifications",
-            },
-            {
-                title: "Connections",
-                icon: Users,
-                path: "/investor/dashboard/connections",
-            },
-            {
-                title: "Settings",
-                icon: Settings,
-                path: "/investor/dashboard/settings",
-            },
-        ];
-    }
+    menu = [
+        {
+            title: "Home",
+            icon: Home,
+            path: "/investor/dashboard",
+        },
+        {
+            title: "Portfolio",
+            icon: TrendingUp,
+            path: "/investor/dashboard/portfolio",
+        },
+        {
+            title: "Active Investments",
+            icon: Briefcase,
+            path: "/investor/dashboard/active-investments",
+        },
+        {
+            title: "Invested Companies",
+            icon: Building2,
+            path: "/investor/dashboard/invested-companies",
+        },
+        {
+            title: "Startups",
+            icon: Building2,
+            path: "/investor/dashboard/startups",
+        },
+        {
+            title: "Notifications",
+            icon: Bell,
+            path: "/investor/dashboard/notifications",
+        },
+        {
+            title: "Connections",
+            icon: Users,
+            path: "/investor/dashboard/connections",
+        },
+    ];
+}
 
     return (
         <aside className="flex w-72 flex-col border-r border-white/10 bg-[#0B1023]">
