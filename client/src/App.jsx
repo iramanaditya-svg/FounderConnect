@@ -24,6 +24,11 @@ import ActiveInvestments from "./pages/dashboard/investor/ActiveInvestments";
 import InvestedCompanies from "./pages/dashboard/investor/InvestedCompanies";
 import InvestorStartups from "./pages/dashboard/investor/InvestorStartups";
 import InvestorStartupDetails from "./pages/dashboard/investor/InvestorStartupDetails";
+import Portfolio from "./pages/dashboard/investor/Portfolio";
+import RaiseInvestment from "./pages/dashboard/startup_builder/RaiseInvestment";
+import InvestmentRequests from "./pages/dashboard/startup_builder/InvestmentRequests";
+import EditInvestorProfile from "./components/ui/EditInvestorProfile";
+import Connections from "./pages/dashboard/Connections";
 function App() {
     return (
         <Routes>
@@ -53,6 +58,10 @@ function App() {
     path="/professional/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="connections"
+    element={<Connections />}
+/>
     <Route index element={<Home />} />
 
     <Route
@@ -81,6 +90,18 @@ function App() {
     path="/startup_builder/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="connections"
+    element={<Connections />}
+/>
+        <Route
+    path="investment-requests"
+    element={<InvestmentRequests />}
+/>
+    <Route
+    path="raise-investment"
+    element={<RaiseInvestment />}
+/>
     <Route
         index
         element={<Home />}
@@ -131,6 +152,10 @@ function App() {
     element={<DashboardLayout />}
 >
     <Route
+    path="connections"
+    element={<Connections />}
+/>
+    <Route
         index
         element={<Home />}
     />
@@ -149,6 +174,14 @@ function App() {
 <Route
     path="startups/:startupId"
     element={<InvestorStartupDetails />}
+/>
+<Route
+    path="portfolio"
+    element={<Portfolio />}
+/>
+<Route
+    path="edit-profile"
+    element={<EditInvestorProfile />}
 />
 </Route>
         </Routes>

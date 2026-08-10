@@ -22,7 +22,7 @@ export const getInvestorProfile = async () => {
 export const updateInvestorProfile = async (
     profileData
 ) => {
-    const response = await api.put(
+    const response = await api.patch(
         "/investor/profile",
         profileData
     );

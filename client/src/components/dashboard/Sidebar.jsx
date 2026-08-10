@@ -11,6 +11,7 @@ import {
     ChevronDown,
     UserCog,
     KeyRound,
+    DollarSign,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -18,7 +19,7 @@ import logo from "../../assets/logo.png";
 import { useState } from "react";
 
 function Sidebar() {
-const [settingsOpen, setSettingsOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
 
     let menu = [];
@@ -39,11 +40,6 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                 title: "Active Applications",
                 icon: Clock3,
                 path: "/professional/dashboard/active-applications",
-            },
-            {
-                title: "Notifications",
-                icon: Bell,
-                path: "/professional/dashboard/notifications",
             },
             {
                 title: "Connections",
@@ -76,58 +72,59 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                 path: "/startup_builder/dashboard/my-startups",
             },
             {
-                title: "Notifications",
-                icon: Bell,
-                path: "/startup_builder/dashboard/notifications",
+                title: "Raise Investment",
+                icon: DollarSign,
+                path: "/startup_builder/dashboard/raise-investment",
             },
+            {
+    title: "Investment Requests",
+    icon: TrendingUp,
+    path: "/startup_builder/dashboard/investment-requests",
+},
 
         ];
     }
 
     else if (user?.activeRole === "investor") {
-    menu = [
-        {
-            title: "Home",
-            icon: Home,
-            path: "/investor/dashboard",
-        },
-        {
-            title: "Portfolio",
-            icon: TrendingUp,
-            path: "/investor/dashboard/portfolio",
-        },
-        {
-            title: "Active Investments",
-            icon: Briefcase,
-            path: "/investor/dashboard/active-investments",
-        },
-        {
-            title: "Invested Companies",
-            icon: Building2,
-            path: "/investor/dashboard/invested-companies",
-        },
-        {
-            title: "Startups",
-            icon: Building2,
-            path: "/investor/dashboard/startups",
-        },
-        {
-            title: "Notifications",
-            icon: Bell,
-            path: "/investor/dashboard/notifications",
-        },
-        {
-            title: "Connections",
-            icon: Users,
-            path: "/investor/dashboard/connections",
-        },
-    ];
-}
+        menu = [
+            {
+                title: "Home",
+                icon: Home,
+                path: "/investor/dashboard",
+            },
+            {
+                title: "Portfolio",
+                icon: TrendingUp,
+                path: "/investor/dashboard/portfolio",
+            },
+            {
+                title: "Active Investments",
+                icon: Briefcase,
+                path: "/investor/dashboard/active-investments",
+            },
+            {
+                title: "Invested Companies",
+                icon: Building2,
+                path: "/investor/dashboard/invested-companies",
+            },
+            {
+                title: "Startups",
+                icon: Building2,
+                path: "/investor/dashboard/startups",
+            },
+            {
+                title: "Connections",
+                icon: Users,
+                path: "/investor/dashboard/connections",
+            },
+        ];
+    }
 
     return (
         <aside className="flex w-72 flex-col border-r border-white/10 bg-[#0B1023]">
 
             <div className="border-b border-white/10 px-6 py-8">
+
                 <img
                     src={logo}
                     alt="FounderConnect"
@@ -137,6 +134,7 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                 <p className="mt-2 text-sm text-slate-400">
                     Connect • Build • Grow
                 </p>
+
             </div>
 
             <nav className="mt-6 flex-1 space-y-2 px-4">
@@ -149,9 +147,14 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                         <NavLink
                             key={item.title}
                             to={item.path}
-                            end={item.path === menu[0]?.path}
+                            end={
+                                item.path ===
+                                menu[0]?.path
+                            }
                         >
+
                             {({ isActive }) => (
+
                                 <div
                                     className={`group relative flex items-center justify-between overflow-hidden rounded-2xl px-5 py-4 transition-all duration-300 ${
                                         isActive
@@ -159,11 +162,13 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                                             : "text-slate-400 hover:bg-white/5 hover:text-white"
                                     }`}
                                 >
+
                                     {isActive && (
-                                        <div className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-white" />
+                                        <div className="absolute bottom-2 left-0 top-2 w-1 rounded-r-full bg-white" />
                                     )}
 
                                     <div className="flex items-center gap-4">
+
                                         <Icon
                                             size={21}
                                             className="transition-transform duration-300 group-hover:scale-110"
@@ -172,6 +177,7 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                                         <span className="font-medium">
                                             {item.title}
                                         </span>
+
                                     </div>
 
                                     {item.badge && (
@@ -179,143 +185,157 @@ const [settingsOpen, setSettingsOpen] = useState(false);
                                             {item.badge}
                                         </span>
                                     )}
+
                                 </div>
+
                             )}
+
                         </NavLink>
                     );
                 })}
-    <div className="px-4">
 
-    <button
-        onClick={() => setSettingsOpen(!settingsOpen)}
-        className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-slate-400 transition hover:bg-white/5 hover:text-white"
-    >
+                <div className="px-4">
 
-        <div className="flex items-center gap-4">
+                    <button
+                        onClick={() =>
+                            setSettingsOpen(
+                                !settingsOpen
+                            )
+                        }
+                        className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-slate-400 transition hover:bg-white/5 hover:text-white"
+                    >
 
-            <Settings size={21} />
+                        <div className="flex items-center gap-4">
 
-            <span className="font-medium">
-                Settings
-            </span>
+                            <Settings size={21} />
 
-        </div>
+                            <span className="font-medium">
+                                Settings
+                            </span>
 
-        <ChevronDown
-            size={18}
-            className={`transition duration-300 ${
-                settingsOpen
-                    ? "rotate-180"
-                    : ""
-            }`}
-        />
+                        </div>
 
-    </button>
+                        <ChevronDown
+                            size={18}
+                            className={`transition duration-300 ${
+                                settingsOpen
+                                    ? "rotate-180"
+                                    : ""
+                            }`}
+                        />
 
-    <div
-        className={`overflow-hidden transition-all duration-300 ${
-            settingsOpen
-                ? "mt-2 max-h-40"
-                : "max-h-0"
-        }`}
-    >
+                    </button>
 
-        <NavLink
-            to={`/${user.activeRole}/dashboard/edit-profile`}
-        >
+                    <div
+                        className={`overflow-hidden transition-all duration-300 ${
+                            settingsOpen
+                                ? "mt-2 max-h-40"
+                                : "max-h-0"
+                        }`}
+                    >
 
-            {({ isActive }) => (
+                        <NavLink
+                            to={`/${user.activeRole}/dashboard/edit-profile`}
+                        >
 
-                <div
-                    className={`ml-5 flex items-center gap-3 rounded-xl px-4 py-3 transition ${
-                        isActive
-                            ? "bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
-                    }`}
-                >
+                            {({ isActive }) => (
 
-                    <UserCog size={18} />
+                                <div
+                                    className={`ml-5 flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                                        isActive
+                                            ? "bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white"
+                                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                    }`}
+                                >
 
-                    Edit Profile
+                                    <UserCog size={18} />
+
+                                    Edit Profile
+
+                                </div>
+
+                            )}
+
+                        </NavLink>
+
+                        <NavLink
+                            to={`/${user.activeRole}/dashboard/change-password`}
+                        >
+
+                            {({ isActive }) => (
+
+                                <div
+                                    className={`ml-5 mt-2 flex items-center gap-3 rounded-xl px-4 py-3 transition ${
+                                        isActive
+                                            ? "bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white"
+                                            : "text-slate-400 hover:bg-white/5 hover:text-white"
+                                    }`}
+                                >
+
+                                    <KeyRound size={18} />
+
+                                    Change Password
+
+                                </div>
+
+                            )}
+
+                        </NavLink>
+
+                    </div>
 
                 </div>
 
-            )}
-
-        </NavLink>
-
-        <NavLink
-            to={`/${user.activeRole}/dashboard/change-password`}
-        >
-
-            {({ isActive }) => (
-
-                <div
-                    className={`ml-5 mt-2 flex items-center gap-3 rounded-xl px-4 py-3 transition ${
-                        isActive
-                            ? "bg-gradient-to-r from-[#2563EB] to-[#7C3AED] text-white"
-                            : "text-slate-400 hover:bg-white/5 hover:text-white"
-                    }`}
-                >
-
-                    <KeyRound size={18} />
-
-                    Change Password
-
-                </div>
-
-            )}
-
-        </NavLink>
-
-    </div>
-
-</div>
             </nav>
-<div className="border-t border-white/10 p-4">
 
-    <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
+            <div className="p-4">
 
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-lg font-bold text-white">
+                <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3">
 
-            {user?.fullName?.charAt(0).toUpperCase()}
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-r from-violet-600 to-blue-600 text-lg font-bold text-white">
 
-        </div>
+                        {user?.fullName
+                            ?.charAt(0)
+                            .toUpperCase()}
 
-        <div className="flex-1 overflow-hidden">
+                    </div>
 
-            <h3 className="truncate text-sm font-semibold text-white">
+                    <div className="flex-1 overflow-hidden">
 
-                {user?.fullName}
+                        <h3 className="truncate text-sm font-semibold text-white">
 
-            </h3>
+                            {user?.fullName}
 
-            <p className="truncate text-xs capitalize text-slate-400">
+                        </h3>
 
-                {user?.activeRole.replace("_", " ")}
+                        <p className="truncate text-xs capitalize text-slate-400">
 
-            </p>
+                            {user?.activeRole?.replace(
+                                "_",
+                                " "
+                            )}
 
-        </div>
+                        </p>
 
-        <button
-    onClick={() => {
+                    </div>
 
-        localStorage.clear();
+                    <button
+                        onClick={() => {
+                            localStorage.clear();
+                            window.location.href =
+                                "/login";
+                        }}
+                        className="rounded-xl p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
+                    >
 
-        window.location.href = "/login";
+                        <LogOut size={18} />
 
-    }}
-    className="rounded-xl p-2 text-slate-400 transition hover:bg-red-500/20 hover:text-red-400"
->
+                    </button>
 
-            <LogOut size={18} />
+                </div>
 
-        </button>
+            </div>
 
-    </div>
-
-</div>
         </aside>
     );
 }

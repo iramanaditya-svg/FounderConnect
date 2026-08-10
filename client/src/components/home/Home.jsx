@@ -23,6 +23,43 @@ import WelcomeBanner from "../dashboard/WelcomeBanner";
 import StartupFeed from "../../components/startup/StartupFeed";
 
 
+function getIndustryNames(startup) {
+    const rawIndustries =
+        startup?.industry ??
+        startup?.industries ??
+        startup?.sector ??
+        startup?.sectors ??
+        [];
+
+    const values = Array.isArray(rawIndustries)
+        ? rawIndustries
+        : rawIndustries
+            ? [rawIndustries]
+            : [];
+
+    return values
+        .flatMap((industry) => {
+            if (!industry) return [];
+
+            if (typeof industry === "string") {
+                return [industry];
+            }
+
+            if (typeof industry === "object") {
+                return [
+                    industry.name,
+                    industry.label,
+                    industry.title,
+                    industry.value,
+                ].filter(Boolean);
+            }
+
+            return [String(industry)];
+        })
+        .map((industry) => String(industry).trim())
+        .filter(Boolean);
+}
+
 function Home() {
 
     const navigate = useNavigate();
@@ -453,19 +490,19 @@ function Home() {
             const accepted =
                 investments.filter(
                     (investment) =>
-                        investment.status === "accepted"
+                        String(investment.status).toLowerCase() === "accepted"
                 );
 
             const pending =
                 investments.filter(
                     (investment) =>
-                        investment.status === "pending"
+                        String(investment.status).toLowerCase() === "pending"
                 );
 
             const rejected =
                 investments.filter(
                     (investment) =>
-                        investment.status === "rejected"
+                        String(investment.status).toLowerCase() === "rejected"
                 );
 
             const totalFundInvested =
@@ -481,34 +518,50 @@ function Home() {
             const companyMap = {};
 
             accepted.forEach((investment) => {
+                const amount = Number(investment.amount || 0);
+                const startup = investment.startup;
 
-                const amount =
-                    Number(investment.amount || 0);
+                if (!startup) return;
 
-                const industries =
-                    investment.startup?.industry || [];
+                const industries = getIndustryNames(startup);
 
-                industries.forEach((industry) => {
-                    industryMap[industry] =
-                        (industryMap[industry] || 0) +
-                        amount;
-                });
+                if (industries.length === 0) {
+                    industryMap.Other =
+                        (industryMap.Other || 0) + amount;
+                } else {
+                    industries.forEach((industry) => {
+                        const normalizedName = industry
+                            .replace(/\s+/g, " ")
+                            .trim();
+
+                        const existingKey = Object.keys(industryMap).find(
+                            (key) =>
+                                key.toLowerCase() ===
+                                normalizedName.toLowerCase()
+                        );
+
+                        const key = existingKey || normalizedName;
+
+                        industryMap[key] =
+                            (industryMap[key] || 0) + amount;
+                    });
+                }
 
                 const stage =
-                    investment.startup?.stage ||
-                    "unknown";
+                    startup.stage ??
+                    startup.fundingStage ??
+                    startup.funding_stage ??
+                    "Unknown";
 
-                stageMap[stage] =
-                    (stageMap[stage] || 0) +
-                    amount;
+                const stageName = String(stage)
+                    .replace(/_/g, " ")
+                    .trim();
 
-                const startup =
-                    investment.startup;
+                stageMap[stageName] =
+                    (stageMap[stageName] || 0) + amount;
 
-                if (startup?._id) {
-
-                    const id =
-                        startup._id.toString();
+                if (startup._id) {
+                    const id = startup._id.toString();
 
                     if (!companyMap[id]) {
                         companyMap[id] = {
@@ -520,11 +573,8 @@ function Home() {
 
                     companyMap[id].amount += amount;
                     companyMap[id].count += 1;
-
                 }
-
             });
-
             const investedCompanies =
                 Object.values(companyMap).sort(
                     (a, b) =>
@@ -761,12 +811,12 @@ function Home() {
 
                         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
 
+                            {/* Investment by Industry */}
                             <div className="xl:col-span-2 rounded-3xl border border-white/10 bg-[#111827] p-6">
 
                                 <div className="flex items-start justify-between">
 
                                     <div>
-
                                         <h2 className="text-xl font-semibold text-white">
                                             Investment by Industry
                                         </h2>
@@ -774,7 +824,6 @@ function Home() {
                                         <p className="mt-1 text-sm text-slate-500">
                                             Accepted investment allocation across industries
                                         </p>
-
                                     </div>
 
                                     <BarChart3
@@ -789,11 +838,9 @@ function Home() {
                                     {investorAnalytics.industryBreakdown.length === 0 ? (
 
                                         <div className="flex h-48 items-center justify-center rounded-2xl border border-dashed border-white/10">
-
                                             <p className="text-sm text-slate-500">
                                                 No accepted investments yet.
                                             </p>
-
                                         </div>
 
                                     ) : (
@@ -801,16 +848,15 @@ function Home() {
                                         investorAnalytics.industryBreakdown
                                             .slice(0, 8)
                                             .map((item) => (
-
                                                 <div key={item.name}>
 
-                                                    <div className="mb-2 flex items-center justify-between">
+                                                    <div className="mb-2 flex items-center justify-between gap-4">
 
-                                                        <span className="text-sm font-medium text-slate-300">
+                                                        <span className="truncate text-sm font-medium text-slate-300">
                                                             {item.name}
                                                         </span>
 
-                                                        <span className="text-sm font-semibold text-white">
+                                                        <span className="shrink-0 text-sm font-semibold text-white">
                                                             ₹{item.amount.toLocaleString("en-IN")}
                                                         </span>
 
@@ -819,7 +865,7 @@ function Home() {
                                                     <div className="h-3 overflow-hidden rounded-full bg-white/5">
 
                                                         <div
-                                                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500"
+                                                            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500 transition-all duration-700"
                                                             style={{
                                                                 width: `${Math.max(
                                                                     5,
@@ -833,7 +879,6 @@ function Home() {
                                                     </div>
 
                                                 </div>
-
                                             ))
 
                                     )}
@@ -842,6 +887,7 @@ function Home() {
 
                             </div>
 
+                            {/* Portfolio Summary */}
                             <div className="rounded-3xl border border-white/10 bg-[#111827] p-6">
 
                                 <div className="flex items-start justify-between">
@@ -868,7 +914,6 @@ function Home() {
                                 <div className="mt-7 space-y-4">
 
                                     <div className="rounded-2xl bg-white/[0.03] p-4">
-
                                         <p className="text-xs text-slate-500">
                                             Average Investment
                                         </p>
@@ -876,11 +921,9 @@ function Home() {
                                         <p className="mt-2 text-lg font-semibold text-white">
                                             ₹{investorAnalytics.averageInvestment.toLocaleString("en-IN")}
                                         </p>
-
                                     </div>
 
                                     <div className="rounded-2xl bg-white/[0.03] p-4">
-
                                         <p className="text-xs text-slate-500">
                                             Largest Investment
                                         </p>
@@ -888,11 +931,9 @@ function Home() {
                                         <p className="mt-2 text-lg font-semibold text-white">
                                             ₹{investorAnalytics.largestInvestment.toLocaleString("en-IN")}
                                         </p>
-
                                     </div>
 
                                     <div className="rounded-2xl bg-white/[0.03] p-4">
-
                                         <p className="text-xs text-slate-500">
                                             Pending Requests
                                         </p>
@@ -900,11 +941,9 @@ function Home() {
                                         <p className="mt-2 text-lg font-semibold text-white">
                                             {investorAnalytics.pending.length}
                                         </p>
-
                                     </div>
 
                                     <div className="rounded-2xl bg-white/[0.03] p-4">
-
                                         <p className="text-xs text-slate-500">
                                             Rejected Requests
                                         </p>
@@ -912,7 +951,6 @@ function Home() {
                                         <p className="mt-2 text-lg font-semibold text-white">
                                             {investorAnalytics.rejected.length}
                                         </p>
-
                                     </div>
 
                                 </div>
