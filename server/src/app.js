@@ -17,7 +17,7 @@ import conversationRoutes from "./routes/conversation.routes.js";
 const app = express();
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: "https://founder-connect-two.vercel.app",
     credentials: true
 }));
 
