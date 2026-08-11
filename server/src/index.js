@@ -1,31 +1,20 @@
 import "dotenv/config";
 
-import http from "http";
-
 import connectDB from "./db/index.js";
 import app from "./app.js";
 
-import initializeSocket from "./socket/socket.js";
+let dbConnected = false;
 
-connectDB()
-    .then(() => {
-        const server =
-            http.createServer(app);
+const ensureDBConnection = async () => {
+    if (!dbConnected) {
+        await connectDB();
+        dbConnected = true;
+    }
+};
 
-        initializeSocket(server);
+const handler = async (req, res) => {
+    await ensureDBConnection();
+    return app(req, res);
+};
 
-        server.listen(
-            process.env.PORT,
-            () => {
-                console.log(
-                    `Server running on port ${process.env.PORT}`
-                );
-            }
-        );
-    })
-    .catch((error) => {
-        console.log(
-            "MongoDB connection failed",
-            error
-        );
-    });
+export default handler;
