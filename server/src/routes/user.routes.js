@@ -10,7 +10,9 @@ import {
     updateAccountDetails,
     selectRole,
     updateProfilePicture,
-    deleteAccount
+    deleteAccount,
+    getPublicProfile,
+    searchProfiles
 } from "../controllers/user.controller.js";
 
 import verifyJWT from "../middlewares/auth.middleware.js";
@@ -30,6 +32,9 @@ router.route("/logout").post(
     logoutUser
 );
 
+router.route("/search").get(
+    searchProfiles
+);
 router.route("/change-password").post(
     verifyJWT,
     changeCurrentPassword
@@ -44,7 +49,9 @@ router.route("/update-account").patch(
     verifyJWT,
     updateAccountDetails
 );
-
+router.route("/profile/:username").get(
+    getPublicProfile
+);
 router.route("/select-role").post(
     verifyJWT,
     selectRole

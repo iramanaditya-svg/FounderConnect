@@ -14,6 +14,7 @@ import Message from "../models/message.model.js";
 import jwt from "jsonwebtoken";
 
 
+
 const generateAccessAndRefreshToken = async (userId) => {
     try {
         const user = await User.findById(userId);
@@ -596,7 +597,158 @@ const deleteAccount = asyncHandler(
         );
     }
 );
+const getPublicProfile = asyncHandler(async (req, res) => {
+    const { username } = req.params;
 
+    const user = await User.findOne({
+        username: username.toLowerCase(),
+    }).select(
+        "_id fullName username profilePicture roles activeRole bio isProfileCompleted"
+    );
+
+    if (!user) {
+        throw new ApiError(
+            404,
+            "User profile not found"
+        );
+    }
+    const rolePriority = [
+    "startup_builder",
+    "investor",
+    "professional",
+];
+
+const primaryRole =
+    rolePriority.find((role) =>
+        user.roles.includes(role)
+    ) || null;
+
+    const [
+        professionalProfile,
+        investorProfile,
+        startupBuilderProfile,
+        startups,
+    ] = await Promise.all([
+        ProfessionalProfile.findOne({
+            user: user._id,
+        }).select(
+            "headline skills experience education resume github linkedin portfolio"
+        ),
+
+        InvestorProfile.findOne({
+            user: user._id,
+        }).select(
+            "preferredIndustries preferredStages bio linkedin website portfolio"
+        ),
+
+        StartupBuilderProfile.findOne({
+            user: user._id,
+        }).select(
+            "headline experience linkedin website location bio"
+        ),
+
+        Startup.find({
+            founder: user._id,
+            status: {
+                $ne: "draft",
+            },
+        })
+            .select(
+                "name tagline description industry stage website location logo coverImage openToInvestors currentValuation fundingGoal equityOffered status"
+            )
+            .sort({
+                createdAt: -1,
+            }),
+    ]);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            {
+    user,
+    primaryRole,
+    professionalProfile,
+    investorProfile,
+    startupBuilderProfile,
+    startups,
+            },
+            "Public profile fetched successfully"
+        )
+    );
+});
+const searchProfiles = asyncHandler(async (req, res) => {
+    const { query = "" } = req.query;
+
+    const searchQuery = query.trim();
+
+    if (!searchQuery) {
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                [],
+                "No search query provided"
+            )
+        );
+    }
+
+    const users = await User.find({
+        $or: [
+            {
+                fullName: {
+                    $regex: searchQuery,
+                    $options: "i",
+                },
+            },
+            {
+                username: {
+                    $regex: searchQuery,
+                    $options: "i",
+                },
+            },
+        ],
+    })
+        .select(
+            "_id fullName username profilePicture roles activeRole bio"
+        )
+        .limit(20);
+
+    const rolePriority = [
+        "startup_builder",
+        "investor",
+        "professional",
+    ];
+
+    const results = users
+        .map((user) => {
+            const primaryRole =
+                rolePriority.find((role) =>
+                    user.roles.includes(role)
+                ) || null;
+
+            return {
+                ...user.toObject(),
+                primaryRole,
+            };
+        })
+        .sort((a, b) => {
+            return (
+                rolePriority.indexOf(
+                    a.primaryRole
+                ) -
+                rolePriority.indexOf(
+                    b.primaryRole
+                )
+            );
+        });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            results,
+            "Profiles fetched successfully"
+        )
+    );
+});
 export {
     registerUser,
     loginUser,
@@ -607,5 +759,7 @@ export {
     updateAccountDetails,
     selectRole,
     updateProfilePicture,
-    deleteAccount
+    deleteAccount,
+    getPublicProfile,
+    searchProfiles
 };

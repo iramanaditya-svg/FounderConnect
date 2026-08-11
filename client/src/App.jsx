@@ -30,10 +30,16 @@ import InvestmentRequests from "./pages/dashboard/startup_builder/InvestmentRequ
 import EditInvestorProfile from "./components/ui/EditInvestorProfile";
 import Connections from "./pages/dashboard/Connections";
 import ProfileManagement from "./pages/dashboard/ProfileManagement";
+import ChangePassword from "./pages/dashboard/ChangePassword";
+import Search from "./pages/dashboard/Search";
+import PublicProfile from "./pages/PublicProfile";
 function App() {
     return (
         <Routes>
-
+<Route
+    path="/profile/:username"
+    element={<PublicProfile />}
+/>
             <Route
                 path="/"
                 element={<Register />}
@@ -59,6 +65,14 @@ function App() {
     path="/professional/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="search"
+    element={<Search />}
+/>
+    <Route
+    path="change-password"
+    element={<ChangePassword />}
+/>
     <Route
     path="profile-management"
     element={<ProfileManagement />}
@@ -95,6 +109,14 @@ function App() {
     path="/startup_builder/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="search"
+    element={<Search />}
+/>
+    <Route
+    path="change-password"
+    element={<ChangePassword />}
+/>
     <Route
     path="profile-management"
     element={<ProfileManagement />}
@@ -160,6 +182,14 @@ function App() {
     path="/investor/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="search"
+    element={<Search />}
+/>
+    <Route
+    path="change-password"
+    element={<ChangePassword />}
+/>
     <Route
     path="profile-management"
     element={<ProfileManagement />}

@@ -2,6 +2,7 @@ import {
     Home,
     Briefcase,
     Clock3,
+    Bell,
     Users,
     Settings,
     Building2,
@@ -10,7 +11,7 @@ import {
     ChevronDown,
     UserCog,
     KeyRound,
-    DollarSign,
+    Search as SearchIcon,
 } from "lucide-react";
 
 import { NavLink } from "react-router-dom";
@@ -48,6 +49,11 @@ function Sidebar() {
                 icon: Users,
                 path: "/professional/dashboard/connections",
             },
+            {
+    title: "Search",
+    icon: SearchIcon,
+    path: "/professional/dashboard/search",
+},
         ];
     } else if (
         user?.activeRole === "startup_builder"
@@ -88,6 +94,11 @@ function Sidebar() {
                 icon: Users,
                 path: "/startup_builder/dashboard/connections",
             },
+            {
+    title: "Search",
+    icon: SearchIcon,
+    path: "/professional/dashboard/search",
+},
         ];
     } else if (
         user?.activeRole === "investor"
@@ -123,6 +134,11 @@ function Sidebar() {
                 icon: Users,
                 path: "/investor/dashboard/connections",
             },
+            {
+    title: "Search",
+    icon: SearchIcon,
+    path: "/professional/dashboard/search",
+},
         ];
     }
 
