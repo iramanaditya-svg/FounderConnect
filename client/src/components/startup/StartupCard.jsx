@@ -6,8 +6,14 @@ import {
     Pencil,
     Trash2,
     Building2,
+    Users,
 } from "lucide-react";
-function StartupCard({ startup, onRefresh }) {
+
+function StartupCard({
+    startup,
+    onRefresh,
+    onOpenToInvestors,
+}) {
     const navigate = useNavigate();
 
     const handleDelete = async () => {
@@ -19,18 +25,19 @@ function StartupCard({ startup, onRefresh }) {
 
         try {
             await axios.delete(
-    `http://localhost:8000/api/v1/startups/${startup._id}`,
-    {
-        withCredentials: true,
-    }
-);
+                `http://localhost:8000/api/v1/startups/${startup._id}`,
+                {
+                    withCredentials: true,
+                }
+            );
 
-await onRefresh();
+            await onRefresh();
         } catch (error) {
             console.log(error);
             alert("Failed to delete startup.");
         }
     };
+
     return (
         <div className="rounded-3xl border border-slate-800 bg-[#0F172A] p-6 transition duration-300 hover:border-violet-500 hover:shadow-xl hover:shadow-violet-500/10">
 
@@ -58,7 +65,7 @@ await onRefresh();
                 </div>
 
                 <span className="rounded-full bg-violet-600/20 px-3 py-1 text-xs font-semibold capitalize text-violet-400">
-                    {startup.stage.replace("_", " ")}
+                    {startup.stage?.replace("_", " ")}
                 </span>
 
             </div>
@@ -90,6 +97,7 @@ await onRefresh();
                 {startup.website && (
                     <div className="flex items-center gap-2">
                         <Globe size={16} />
+
                         <a
                             href={startup.website}
                             target="_blank"
@@ -103,43 +111,72 @@ await onRefresh();
 
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-slate-800 pt-5">
+            <div className="mt-6 border-t border-slate-800 pt-5">
 
-                <div>
+                <div className="flex items-center justify-between">
 
-                    <p className="text-xs text-slate-500">
-                        Funding Goal
-                    </p>
+                    <div>
+                        <p className="text-xs text-slate-500">
+                            Funding Goal
+                        </p>
 
-                    <h3 className="text-lg font-bold text-white">
-                        ₹ {startup.fundingGoal || 0}
-                    </h3>
-
-                </div>
-
-                <div className="flex gap-3">
+                        <h3 className="text-lg font-bold text-white">
+                            ₹ {startup.fundingGoal || 0}
+                        </h3>
+                    </div>
 
                     <div className="flex gap-3">
-    <button
-        onClick={() =>
-            navigate(
-                `/startup_builder/dashboard/my-startups/${startup._id}`
-            )
-        }
-        className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-violet-600 hover:text-white"
-    >
-        <Pencil size={18} />
-    </button>
 
-    <button
-        onClick={handleDelete}
-        className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-red-600 hover:text-white"
-    >
-        <Trash2 size={18} />
-    </button>
-</div>
+                        <button
+                            onClick={() =>
+                                onOpenToInvestors(startup)
+                            }
+                            title={
+                                startup.openToInvestors
+                                    ? "Close to Investors"
+                                    : "Open to Investors"
+                            }
+                            className={`flex items-center gap-2 rounded-xl px-3 py-3 text-sm font-medium transition ${
+                                startup.openToInvestors
+                                    ? "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500 hover:text-white"
+                                    : "bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white"
+                            }`}
+                        >
+                            <Users size={18} />
+
+                            {startup.openToInvestors
+                                ? "Open"
+                                : "Investors"}
+                        </button>
+
+                        <button
+                            onClick={() =>
+                                navigate(
+                                    `/startup_builder/dashboard/my-startups/${startup._id}`
+                                )
+                            }
+                            className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-violet-600 hover:text-white"
+                        >
+                            <Pencil size={18} />
+                        </button>
+
+                        <button
+                            onClick={handleDelete}
+                            className="rounded-xl bg-slate-800 p-3 text-slate-300 transition hover:bg-red-600 hover:text-white"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+
+                    </div>
 
                 </div>
+
+                {startup.openToInvestors && (
+                    <div className="mt-4 flex items-center gap-2 text-xs font-medium text-emerald-400">
+                        <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                        This startup is open to investors
+                    </div>
+                )}
 
             </div>
 

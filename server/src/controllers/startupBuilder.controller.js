@@ -181,42 +181,41 @@ const updateStartupBuilderProfile = asyncHandler(async (req, res) => {
 });
 
 const deleteStartupBuilderProfile = asyncHandler(async (req, res) => {
-    const startupBuilderProfile =
-        await StartupBuilderProfile.findOne({
-            user: req.user._id,
-        });
-
-    if (!startupBuilderProfile) {
-        throw new ApiError(
-            404,
-            "Startup Builder profile not found"
-        );
-    }
-
-    const startupCount = await Startup.countDocuments({
-    founder: req.user._id,
-});
-
-if (startupCount > 0) {
-    throw new ApiError(
-        400,
-        "Transfer or delete all your startups before deleting your Startup Builder profile."
-    );
-}
-
-    await startupBuilderProfile.deleteOne();
-
     const user = await User.findById(req.user._id);
 
     if (!user) {
-        throw new ApiError(404, "User not found");
+        throw new ApiError(
+            404,
+            "User not found"
+        );
     }
+
+    const startupCount =
+        await Startup.countDocuments({
+            founder: req.user._id,
+        });
+
+    if (startupCount > 0) {
+        throw new ApiError(
+            400,
+            "Transfer or delete all your startups before deleting your Startup Builder profile."
+        );
+    }
+
+    await StartupBuilderProfile.deleteOne({
+        user: req.user._id,
+    });
 
     user.roles = user.roles.filter(
         (role) => role !== "startup_builder"
     );
 
-    user.activeRole = user.roles[0] ?? null;
+    user.activeRole =
+        user.roles[0] ?? null;
+
+    if (user.roles.length === 0) {
+        user.isProfileCompleted = false;
+    }
 
     await user.save({
         validateBeforeSave: false,
@@ -229,7 +228,7 @@ if (startupCount > 0) {
                 roles: user.roles,
                 activeRole: user.activeRole,
             },
-            "Startup Builder profile deleted successfully"
+            "Startup Builder role deleted successfully"
         )
     );
 });

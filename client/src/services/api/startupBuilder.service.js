@@ -26,10 +26,12 @@ export const updateStartupBuilderProfile = async (profileData) => {
     return response.data;
 };
 
-export const deleteStartupBuilderProfile = async () => {
-    const response = await api.delete(
-        "/startup-builder/profile"
-    );
+export const deleteStartupBuilderProfile =
+    async () => {
+        const response =
+            await api.delete(
+                "/startup-builder/profile"
+            );
 
-    return response.data;
-};
+        return response.data;
+    };

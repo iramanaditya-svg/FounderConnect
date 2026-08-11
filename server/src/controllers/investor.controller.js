@@ -147,37 +147,6 @@ const updateInvestorProfile = asyncHandler(async (req, res) => {
 });
 
 const deleteInvestorProfile = asyncHandler(async (req, res) => {
-    const investorProfile = await InvestorProfile.findOne({
-        user: req.user._id,
-    });
-
-    if (!investorProfile) {
-        throw new ApiError(
-            404,
-            "Investor profile not found"
-        );
-    }
-
-const hasActiveInvestments =
-    await Investment.exists({
-        investor: req.user._id,
-        status: {
-            $in: [
-                "pending",
-                "accepted",
-            ],
-        },
-    });
-
-if (hasActiveInvestments) {
-    throw new ApiError(
-        400,
-        "You cannot delete your Investor profile while you have active investment requests"
-    );
-}
-
-    await investorProfile.deleteOne();
-
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -187,11 +156,38 @@ if (hasActiveInvestments) {
         );
     }
 
+    const hasActiveInvestments =
+        await Investment.exists({
+            investor: req.user._id,
+            status: {
+                $in: [
+                    "pending",
+                    "accepted",
+                ],
+            },
+        });
+
+    if (hasActiveInvestments) {
+        throw new ApiError(
+            400,
+            "You cannot delete your Investor profile while you have active investment requests"
+        );
+    }
+
+    await InvestorProfile.deleteOne({
+        user: req.user._id,
+    });
+
     user.roles = user.roles.filter(
         (role) => role !== "investor"
     );
 
-    user.activeRole = user.roles[0] ?? null;
+    user.activeRole =
+        user.roles[0] ?? null;
+
+    if (user.roles.length === 0) {
+        user.isProfileCompleted = false;
+    }
 
     await user.save({
         validateBeforeSave: false,
@@ -204,11 +200,10 @@ if (hasActiveInvestments) {
                 roles: user.roles,
                 activeRole: user.activeRole,
             },
-            "Investor profile deleted successfully"
+            "Investor role deleted successfully"
         )
     );
 });
-
 export {
     createInvestorProfile,
     getInvestorProfile,

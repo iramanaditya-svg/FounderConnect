@@ -30,13 +30,15 @@ export const updateInvestorProfile = async (
     return response.data;
 };
 
-export const deleteInvestorProfile = async () => {
-    const response = await api.delete(
-        "/investor/profile"
-    );
+export const deleteInvestorProfile =
+    async () => {
+        const response =
+            await api.delete(
+                "/investor/profile"
+            );
 
-    return response.data;
-};
+        return response.data;
+    };
 
 export const getMyInvestments = async () => {
     const response = await api.get(

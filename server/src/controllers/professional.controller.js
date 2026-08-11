@@ -177,53 +177,48 @@ professionalProfile.resume =
 });
 
 const deleteProfessionalProfile = asyncHandler(async (req, res) => {
-    const professionalProfile =
-        await ProfessionalProfile.findOne({
-            user: req.user._id,
-        });
+    const user = await User.findById(req.user._id);
 
-    if (!professionalProfile) {
+    if (!user) {
         throw new ApiError(
             404,
-            "Professional profile not found"
+            "User not found"
         );
     }
 
     const hasActiveApplications =
-    await JobApplication.exists({
-        applicant: req.user._id,
-        status: {
-            $in: [
-                "pending",
-                "shortlisted",
-            ],
-        },
-    });
+        await JobApplication.exists({
+            applicant: req.user._id,
+            status: {
+                $in: [
+                    "pending",
+                    "shortlisted",
+                ],
+            },
+        });
 
-if (hasActiveApplications) {
-    throw new ApiError(
-        400,
-        "You cannot delete your Professional profile while you have active job applications"
-    );
-}
-
-    await professionalProfile.deleteOne();
-
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-        throw new ApiError(404, "User not found");
+    if (hasActiveApplications) {
+        throw new ApiError(
+            400,
+            "You cannot delete your Professional profile while you have active job applications"
+        );
     }
+
+    await ProfessionalProfile.deleteOne({
+        user: req.user._id,
+    });
 
     user.roles = user.roles.filter(
         (role) => role !== "professional"
     );
 
-    user.activeRole = user.roles[0] ?? null;
+    user.activeRole =
+        user.roles[0] ?? null;
 
     if (user.roles.length === 0) {
-    user.isProfileCompleted = false;
-}
+        user.isProfileCompleted = false;
+    }
+
     await user.save({
         validateBeforeSave: false,
     });
@@ -235,7 +230,7 @@ if (hasActiveApplications) {
                 roles: user.roles,
                 activeRole: user.activeRole,
             },
-            "Professional profile deleted successfully"
+            "Professional role deleted successfully"
         )
     );
 });

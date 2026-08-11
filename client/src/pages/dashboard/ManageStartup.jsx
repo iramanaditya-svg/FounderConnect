@@ -31,43 +31,87 @@ function ManageStartup() {
     });
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+        const {
+            name,
+            value,
+            type,
+            checked,
+        } = e.target;
 
         setFormData((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? checked : value,
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : value,
         }));
     };
 
     const fetchStartup = async () => {
         try {
-            const response = await axios.get(
-                `http://localhost:8000/api/v1/startups/${startupId}`,
-                {
-                    withCredentials: true,
-                }
-            );
+            setLoading(true);
 
-            const startup = response.data.data.startup;
+            const response =
+                await axios.get(
+                    `http://localhost:8000/api/v1/startups/${startupId}`,
+                    {
+                        withCredentials: true,
+                    }
+                );
+
+            const startup =
+                response.data?.data?.startup ||
+                response.data?.startup ||
+                response.data?.data;
+
+            if (!startup) {
+                throw new Error(
+                    "Startup data not found."
+                );
+            }
 
             setFormData({
-                name: startup.name || "",
-                tagline: startup.tagline || "",
-                description: startup.description || "",
-                industry: startup.industry || [],
-                stage: startup.stage || "",
-                website: startup.website || "",
-                location: startup.location || "",
-                logo: startup.logo || "",
-                coverImage: startup.coverImage || "",
-                pitchDeck: startup.pitchDeck || "",
-                openToInvestors: startup.openToInvestors || false,
-                currentValuation: startup.currentValuation || "",
-                fundingGoal: startup.fundingGoal || "",
-                equityOffered: startup.equityOffered || "",
+                name: startup.name ?? "",
+                tagline: startup.tagline ?? "",
+                description:
+                    startup.description ?? "",
+                industry: Array.isArray(
+                    startup.industry
+                )
+                    ? startup.industry
+                    : startup.industry
+                    ? [startup.industry]
+                    : [],
+                stage: startup.stage ?? "",
+                website: startup.website ?? "",
+                location: startup.location ?? "",
+                logo: startup.logo ?? "",
+                coverImage:
+                    startup.coverImage ?? "",
+                pitchDeck:
+                    startup.pitchDeck ?? "",
+                openToInvestors:
+                    startup.openToInvestors ??
+                    false,
+                currentValuation:
+                    startup.currentValuation ??
+                    "",
+                fundingGoal:
+                    startup.fundingGoal ?? "",
+                equityOffered:
+                    startup.equityOffered ?? "",
             });
         } catch (error) {
-            console.log(error);
+            console.error(
+                "Failed to load startup:",
+                error
+            );
+
+            alert(
+                error.response?.data?.message ||
+                    error.message ||
+                    "Failed to load startup."
+            );
         } finally {
             setLoading(false);
         }
@@ -77,19 +121,84 @@ function ManageStartup() {
         e.preventDefault();
 
         try {
-            const response = await axios.patch(
-                `http://localhost:8000/api/v1/startups/${startupId}`,
-                formData,
-                {
-                    withCredentials: true,
-                }
+            const response =
+                await axios.patch(
+                    `http://localhost:8000/api/v1/startups/${startupId}`,
+                    formData,
+                    {
+                        withCredentials: true,
+                    }
+                );
+
+            const updatedStartup =
+                response.data?.data?.startup ||
+                response.data?.startup ||
+                response.data?.data;
+
+            if (updatedStartup) {
+                setFormData({
+                    name:
+                        updatedStartup.name ??
+                        "",
+                    tagline:
+                        updatedStartup.tagline ??
+                        "",
+                    description:
+                        updatedStartup.description ??
+                        "",
+                    industry:
+                        Array.isArray(
+                            updatedStartup.industry
+                        )
+                            ? updatedStartup.industry
+                            : updatedStartup.industry
+                            ? [
+                                  updatedStartup.industry,
+                              ]
+                            : [],
+                    stage:
+                        updatedStartup.stage ??
+                        "",
+                    website:
+                        updatedStartup.website ??
+                        "",
+                    location:
+                        updatedStartup.location ??
+                        "",
+                    logo:
+                        updatedStartup.logo ??
+                        "",
+                    coverImage:
+                        updatedStartup.coverImage ??
+                        "",
+                    pitchDeck:
+                        updatedStartup.pitchDeck ??
+                        "",
+                    openToInvestors:
+                        updatedStartup.openToInvestors ??
+                        false,
+                    currentValuation:
+                        updatedStartup.currentValuation ??
+                        "",
+                    fundingGoal:
+                        updatedStartup.fundingGoal ??
+                        "",
+                    equityOffered:
+                        updatedStartup.equityOffered ??
+                        "",
+                });
+            }
+
+            alert(
+                response.data?.message ||
+                    "Startup updated successfully."
             );
 
-            alert(response.data.message);
-
-            navigate("/startup_builder/dashboard/my-startups");
+            navigate(
+                "/startup_builder/dashboard/my-startups"
+            );
         } catch (error) {
-            console.log(error);
+            console.error(error);
 
             alert(
                 error.response?.data?.message ||
@@ -100,7 +209,7 @@ function ManageStartup() {
 
     useEffect(() => {
         fetchStartup();
-    }, []);
+    }, [startupId]);
 
     if (loading) {
         return (
@@ -112,7 +221,6 @@ function ManageStartup() {
 
     return (
         <div className="mx-auto max-w-6xl space-y-8">
-
             <div>
                 <h1 className="text-4xl font-bold text-white">
                     Edit Startup
@@ -127,9 +235,7 @@ function ManageStartup() {
                 onSubmit={handleSubmit}
                 className="space-y-8"
             >
-
                 <div className="space-y-6">
-
                     <InputField
                         label="Startup Name"
                         required
@@ -156,11 +262,9 @@ function ManageStartup() {
                         value={formData.description}
                         onChange={handleChange}
                     />
-
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-
                     <TagInput
                         label="Industries"
                         required
@@ -208,11 +312,9 @@ function ManageStartup() {
                         value={formData.website}
                         onChange={handleChange}
                     />
-
                 </div>
 
                 <div className="grid grid-cols-3 gap-6">
-
                     <InputField
                         label="Logo URL"
                         name="logo"
@@ -236,16 +338,17 @@ function ManageStartup() {
                         value={formData.pitchDeck}
                         onChange={handleChange}
                     />
-
                 </div>
-                                <div className="grid grid-cols-2 gap-6">
 
+                <div className="grid grid-cols-2 gap-6">
                     <InputField
                         label="Current Valuation"
                         type="number"
                         name="currentValuation"
                         placeholder="1000000"
-                        value={formData.currentValuation}
+                        value={
+                            formData.currentValuation
+                        }
                         onChange={handleChange}
                     />
 
@@ -254,7 +357,9 @@ function ManageStartup() {
                         type="number"
                         name="fundingGoal"
                         placeholder="500000"
-                        value={formData.fundingGoal}
+                        value={
+                            formData.fundingGoal
+                        }
                         onChange={handleChange}
                     />
 
@@ -263,17 +368,20 @@ function ManageStartup() {
                         type="number"
                         name="equityOffered"
                         placeholder="10"
-                        value={formData.equityOffered}
+                        value={
+                            formData.equityOffered
+                        }
                         onChange={handleChange}
                     />
 
                     <div className="flex items-center gap-3 pt-9">
-
                         <input
                             type="checkbox"
                             id="openToInvestors"
                             name="openToInvestors"
-                            checked={formData.openToInvestors}
+                            checked={
+                                formData.openToInvestors
+                            }
                             onChange={handleChange}
                             className="h-5 w-5 accent-violet-600"
                         />
@@ -284,13 +392,10 @@ function ManageStartup() {
                         >
                             Open to Investors
                         </label>
-
                     </div>
-
                 </div>
 
                 <div className="flex justify-end gap-4">
-
                     <button
                         type="button"
                         onClick={() =>
@@ -309,11 +414,8 @@ function ManageStartup() {
                     >
                         Save Changes
                     </button>
-
                 </div>
-
             </form>
-
         </div>
     );
 }

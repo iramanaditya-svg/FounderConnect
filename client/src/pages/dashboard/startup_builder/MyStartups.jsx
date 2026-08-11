@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Plus, Rocket } from "lucide-react";
+import { Plus, Rocket, X } from "lucide-react";
 
 import AddStartupModal from "../../../components/startup/AddStartupModal";
 import StartupCard from "../../../components/startup/StartupCard";
@@ -9,6 +9,9 @@ function MyStartups() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [startups, setStartups] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [investorModal, setInvestorModal] = useState(false);
+    const [investorMessage, setInvestorMessage] = useState("");
 
     const fetchStartups = async () => {
         try {
@@ -19,9 +22,9 @@ function MyStartups() {
                 }
             );
 
-            console.log(response.data);
-
-            setStartups(response.data.data.startups || []);
+            setStartups(
+                response.data.data.startups || []
+            );
         } catch (error) {
             console.log(error);
         } finally {
@@ -32,6 +35,112 @@ function MyStartups() {
     useEffect(() => {
         fetchStartups();
     }, []);
+
+    const handleOpenToInvestors = async (startup) => {
+        try {
+            if (startup.openToInvestors) {
+                await axios.patch(
+                    `http://localhost:8000/api/v1/startups/${startup._id}`,
+                    {
+                        openToInvestors: false,
+                    },
+                    {
+                        withCredentials: true,
+                    }
+                );
+
+                setStartups((prev) =>
+                    prev.map((item) =>
+                        item._id === startup._id
+                            ? {
+                                  ...item,
+                                  openToInvestors: false,
+                              }
+                            : item
+                    )
+                );
+
+                return;
+            }
+
+            const jobsResponse = await axios.get(
+                `http://localhost:8000/api/v1/startups/${startup._id}/jobs`,
+                {
+                    withCredentials: true,
+                }
+            );
+
+            const jobs =
+                jobsResponse.data?.data?.jobs || [];
+
+            let hasActiveApplications = false;
+
+            for (const job of jobs) {
+                const applicantsResponse =
+                    await axios.get(
+                        `http://localhost:8000/api/v1/jobs/${job._id}/applicants`,
+                        {
+                            withCredentials: true,
+                        }
+                    );
+
+                const applications =
+                    applicantsResponse.data?.data?.applications || [];
+
+                const activeApplications =
+                    applications.filter(
+                        (application) =>
+                            application.status === "pending" ||
+                            application.status === "shortlisted"
+                    );
+
+                if (activeApplications.length > 0) {
+                    hasActiveApplications = true;
+                    break;
+                }
+            }
+
+            if (hasActiveApplications) {
+                setInvestorMessage(
+                    "You have active job applications. Resolve them first before opening this startup to investors."
+                );
+
+                setInvestorModal(true);
+
+                return;
+            }
+
+            await axios.patch(
+                `http://localhost:8000/api/v1/startups/${startup._id}`,
+                {
+                    openToInvestors: true,
+                },
+                {
+                    withCredentials: true,
+                }
+            );
+
+            setStartups((prev) =>
+                prev.map((item) =>
+                    item._id === startup._id
+                        ? {
+                              ...item,
+                              openToInvestors: true,
+                          }
+                        : item
+                )
+            );
+        } catch (error) {
+            console.log(error);
+
+            setInvestorMessage(
+                error.response?.data?.message ||
+                    "Failed to update investor settings."
+            );
+
+            setInvestorModal(true);
+        }
+    };
 
     return (
         <div className="space-y-8">
@@ -99,12 +208,14 @@ function MyStartups() {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 
                     {startups.map((startup) => (
-    <StartupCard
-        key={startup._id}
-        startup={startup}
-        onRefresh={fetchStartups}
-    />
-))}
+                        <StartupCard
+                            key={startup._id}
+                            startup={startup}
+                            onRefresh={fetchStartups}
+                            onOpenToInvestors={handleOpenToInvestors}
+                        />
+                    ))}
+
                 </div>
 
             )}
@@ -117,6 +228,48 @@ function MyStartups() {
                     setIsModalOpen(false);
                 }}
             />
+
+            {investorModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+
+                    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#111827] p-7 shadow-2xl">
+
+                        <div className="flex items-start justify-between gap-5">
+
+                            <div>
+                                <h2 className="text-xl font-bold text-white">
+                                    Cannot Open to Investors
+                                </h2>
+
+                                <p className="mt-3 text-sm leading-6 text-slate-400">
+                                    {investorMessage}
+                                </p>
+                            </div>
+
+                            <button
+                                onClick={() =>
+                                    setInvestorModal(false)
+                                }
+                                className="rounded-xl p-2 text-slate-400 transition hover:bg-white/5 hover:text-white"
+                            >
+                                <X size={20} />
+                            </button>
+
+                        </div>
+
+                        <button
+                            onClick={() =>
+                                setInvestorModal(false)
+                            }
+                            className="mt-6 w-full rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 py-3 font-semibold text-white transition hover:scale-[1.02]"
+                        >
+                            Okay
+                        </button>
+
+                    </div>
+
+                </div>
+            )}
 
         </div>
     );

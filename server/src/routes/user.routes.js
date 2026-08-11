@@ -9,6 +9,8 @@ import {
     getCurrentUser,
     updateAccountDetails,
     selectRole,
+    updateProfilePicture,
+    deleteAccount
 } from "../controllers/user.controller.js";
 
 import verifyJWT from "../middlewares/auth.middleware.js";
@@ -46,5 +48,16 @@ router.route("/update-account").patch(
 router.route("/select-role").post(
     verifyJWT,
     selectRole
+);
+router.patch(
+    "/profile-picture",
+    verifyJWT,
+    updateProfilePicture
+);
+
+router.delete(
+    "/account",
+    verifyJWT,
+    deleteAccount
 );
 export default router;

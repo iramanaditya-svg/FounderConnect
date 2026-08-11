@@ -2,6 +2,15 @@ import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import User from "../models/user.model.js";
+import ProfessionalProfile from "../models/professionalProfile.model.js";
+import StartupBuilderProfile from "../models/startupBuilderProfile.model.js";
+import InvestorProfile from "../models/investorProfile.model.js";
+import Startup from "../models/startup.model.js";
+import { Job } from "../models/job.model.js";
+import { JobApplication } from "../models/jobApplication.model.js";
+import { Investment } from "../models/investment.model.js";
+import Conversation from "../models/conversation.model.js";
+import Message from "../models/message.model.js";
 import jwt from "jsonwebtoken";
 
 
@@ -387,6 +396,206 @@ const selectRole = asyncHandler(async (req, res) => {
     );
 });
 
+const updateProfilePicture = asyncHandler(
+    async (req, res) => {
+        const { profilePicture } = req.body;
+
+        if (
+            profilePicture !== "" &&
+            !profilePicture?.startsWith("data:image/")
+        ) {
+            throw new ApiError(
+                400,
+                "Invalid profile picture"
+            );
+        }
+
+        if (
+            profilePicture &&
+            profilePicture.length > 700000
+        ) {
+            throw new ApiError(
+                400,
+                "Profile picture is too large"
+            );
+        }
+
+        const user =
+            await User.findByIdAndUpdate(
+                req.user._id,
+                {
+                    $set: {
+                        profilePicture:
+                            profilePicture || "",
+                    },
+                },
+                {
+                    new: true,
+                }
+            ).select(
+                "-password -refreshToken"
+            );
+
+        if (!user) {
+            throw new ApiError(
+                404,
+                "User not found"
+            );
+        }
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                user,
+                "Profile picture updated successfully"
+            )
+        );
+    }
+);
+
+const deleteAccount = asyncHandler(
+    async (req, res) => {
+        const userId = req.user._id;
+
+        const startups =
+            await Startup.find({
+                founder: userId,
+            }).select("_id");
+
+        const startupIds =
+            startups.map(
+                (startup) => startup._id
+            );
+
+        const jobs = await Job.find({
+            $or: [
+                {
+                    createdBy: userId,
+                },
+                {
+                    startup: {
+                        $in: startupIds,
+                    },
+                },
+            ],
+        }).select("_id");
+
+        const jobIds =
+            jobs.map(
+                (job) => job._id
+            );
+
+        await JobApplication.deleteMany({
+            $or: [
+                {
+                    applicant: userId,
+                },
+                {
+                    job: {
+                        $in: jobIds,
+                    },
+                },
+            ],
+        });
+
+        await Job.deleteMany({
+            _id: {
+                $in: jobIds,
+            },
+        });
+
+        await Investment.deleteMany({
+            $or: [
+                {
+                    investor: userId,
+                },
+                {
+                    startup: {
+                        $in: startupIds,
+                    },
+                },
+            ],
+        });
+
+        await Startup.updateMany(
+            {
+                foundingMembers: {
+                    $elemMatch: {
+                        user: userId,
+                    },
+                },
+            },
+            {
+                $pull: {
+                    foundingMembers: {
+                        user: userId,
+                    },
+                },
+            }
+        );
+
+        await Startup.deleteMany({
+            _id: {
+                $in: startupIds,
+            },
+        });
+
+        const conversations =
+            await Conversation.find({
+                participants: userId,
+            }).select("_id");
+
+        const conversationIds =
+            conversations.map(
+                (conversation) =>
+                    conversation._id
+            );
+
+        await Message.deleteMany({
+            $or: [
+                {
+                    sender: userId,
+                },
+                {
+                    receiver: userId,
+                },
+                {
+                    conversation: {
+                        $in: conversationIds,
+                    },
+                },
+            ],
+        });
+
+        await Conversation.deleteMany({
+            participants: userId,
+        });
+
+        await ProfessionalProfile.deleteOne({
+            user: userId,
+        });
+
+        await StartupBuilderProfile.deleteOne({
+            user: userId,
+        });
+
+        await InvestorProfile.deleteOne({
+            user: userId,
+        });
+
+        await User.findByIdAndDelete(
+            userId
+        );
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                {},
+                "Account deleted successfully"
+            )
+        );
+    }
+);
 
 export {
     registerUser,
@@ -396,5 +605,7 @@ export {
     changeCurrentPassword,
     getCurrentUser,
     updateAccountDetails,
-    selectRole
+    selectRole,
+    updateProfilePicture,
+    deleteAccount
 };

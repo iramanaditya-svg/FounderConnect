@@ -9,7 +9,12 @@ import TextAreaField from "../ui/TextAreaField";
 import {
     getInvestorProfile,
     updateInvestorProfile,
+    createInvestorProfile,
 } from "../../services/api/investor.service";
+
+import {
+    updateProfilePicture,
+} from "../../services/api/profileManagement.service";
 
 function EditInvestorProfile() {
     const navigate = useNavigate();
@@ -23,46 +28,107 @@ function EditInvestorProfile() {
         portfolio: "",
     });
 
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState("");
+    const [profilePicture, setProfilePicture] =
+        useState("");
+
+    const [photoChanged, setPhotoChanged] =
+        useState(false);
+
+    const [profileExists, setProfileExists] =
+        useState(true);
+
+    const [loading, setLoading] =
+        useState(true);
+
+    const [saving, setSaving] =
+        useState(false);
+
+    const [error, setError] =
+        useState("");
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
+                setLoading(true);
+                setError("");
+
                 const response =
                     await getInvestorProfile();
 
                 const profile =
-                    response?.data;
+                    response?.data ||
+                    response?.investorProfile ||
+                    response;
 
-                setFormData({
-                    preferredIndustries:
-                        profile?.preferredIndustries ||
-                        [],
-                    preferredStages:
-                        profile?.preferredStages ||
-                        [],
-                    bio:
-                        profile?.bio ||
-                        "",
-                    linkedin:
-                        profile?.linkedin ||
-                        "",
-                    website:
-                        profile?.website ||
-                        "",
-                    portfolio:
-                        profile?.portfolio ||
-                        "",
-                });
+                if (
+                    profile &&
+                    typeof profile === "object" &&
+                    !Array.isArray(profile)
+                ) {
+                    setFormData({
+                        preferredIndustries:
+                            profile.preferredIndustries ||
+                            [],
+
+                        preferredStages:
+                            profile.preferredStages ||
+                            [],
+
+                        bio:
+                            profile.bio ||
+                            "",
+
+                        linkedin:
+                            profile.linkedin ||
+                            "",
+
+                        website:
+                            profile.website ||
+                            "",
+
+                        portfolio:
+                            profile.portfolio ||
+                            "",
+                    });
+
+                    setProfileExists(true);
+                }
+
+                const user =
+                    JSON.parse(
+                        localStorage.getItem("user")
+                    );
+
+                if (user?.profilePicture) {
+                    setProfilePicture(
+                        user.profilePicture
+                    );
+                }
             } catch (error) {
-                console.error(error);
-
-                setError(
-                    error.response?.data?.message ||
-                    "Failed to load investor profile."
+                console.error(
+                    "Investor profile error:",
+                    error
                 );
+
+                if (
+                    error.response?.status === 404
+                ) {
+                    setProfileExists(false);
+
+                    setFormData({
+                        preferredIndustries: [],
+                        preferredStages: [],
+                        bio: "",
+                        linkedin: "",
+                        website: "",
+                        portfolio: "",
+                    });
+                } else {
+                    setError(
+                        error.response?.data?.message ||
+                        "Failed to load investor profile."
+                    );
+                }
             } finally {
                 setLoading(false);
             }
@@ -71,11 +137,119 @@ function EditInvestorProfile() {
         fetchProfile();
     }, []);
 
+    const handleProfilePicture = (e) => {
+        const file =
+            e.target.files?.[0];
+
+        if (!file) return;
+
+        if (
+            !file.type.startsWith("image/")
+        ) {
+            alert(
+                "Please select a valid image."
+            );
+
+            e.target.value = "";
+
+            return;
+        }
+
+        if (
+            file.size >
+            5 * 1024 * 1024
+        ) {
+            alert(
+                "Profile picture must be smaller than 5 MB."
+            );
+
+            e.target.value = "";
+
+            return;
+        }
+
+        const reader =
+            new FileReader();
+
+        reader.onload = () => {
+            const image =
+                new Image();
+
+            image.onload = () => {
+                const canvas =
+                    document.createElement(
+                        "canvas"
+                    );
+
+                const size = 300;
+
+                canvas.width = size;
+                canvas.height = size;
+
+                const context =
+                    canvas.getContext(
+                        "2d"
+                    );
+
+                const scale =
+                    Math.max(
+                        size / image.width,
+                        size / image.height
+                    );
+
+                const width =
+                    image.width * scale;
+
+                const height =
+                    image.height * scale;
+
+                const x =
+                    (size - width) / 2;
+
+                const y =
+                    (size - height) / 2;
+
+                context.drawImage(
+                    image,
+                    x,
+                    y,
+                    width,
+                    height
+                );
+
+                const compressedImage =
+                    canvas.toDataURL(
+                        "image/jpeg",
+                        0.8
+                    );
+
+                setProfilePicture(
+                    compressedImage
+                );
+
+                setPhotoChanged(true);
+            };
+
+            image.src =
+                reader.result;
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    const removeProfilePicture = () => {
+        setProfilePicture("");
+        setPhotoChanged(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!formData.bio.trim()) {
-            setError("Bio is required.");
+            setError(
+                "Bio is required."
+            );
+
             return;
         }
 
@@ -83,19 +257,59 @@ function EditInvestorProfile() {
             setSaving(true);
             setError("");
 
-            await updateInvestorProfile(
-                formData
+            if (profileExists) {
+                await updateInvestorProfile(
+                    formData
+                );
+            } else {
+                await createInvestorProfile(
+                    formData
+                );
+            }
+
+            if (photoChanged) {
+                const response =
+                    await updateProfilePicture(
+                        profilePicture
+                    );
+
+                const user =
+                    JSON.parse(
+                        localStorage.getItem(
+                            "user"
+                        )
+                    );
+
+                user.profilePicture =
+                    response?.data
+                        ?.profilePicture ||
+                    profilePicture;
+
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(user)
+                );
+            }
+
+            alert(
+                "Investor profile saved successfully."
             );
 
             navigate(
-                "/investor/dashboard"
+                "/investor/dashboard",
+                {
+                    replace: true,
+                }
             );
         } catch (error) {
-            console.error(error);
+            console.error(
+                "Save investor profile error:",
+                error
+            );
 
             setError(
                 error.response?.data?.message ||
-                "Failed to update investor profile."
+                "Failed to save investor profile."
             );
         } finally {
             setSaving(false);
@@ -105,9 +319,15 @@ function EditInvestorProfile() {
     if (loading) {
         return (
             <div className="flex min-h-[500px] items-center justify-center">
-                <p className="text-sm text-slate-400">
-                    Loading profile...
-                </p>
+                <div className="text-center">
+
+                    <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-white/10 border-t-emerald-500" />
+
+                    <p className="mt-4 text-sm text-slate-400">
+                        Loading profile...
+                    </p>
+
+                </div>
             </div>
         );
     }
@@ -152,49 +372,98 @@ function EditInvestorProfile() {
                     className="mt-10"
                 >
 
+                    <div className="flex flex-col items-center">
+
+                        <label className="relative cursor-pointer">
+
+                            <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-emerald-500/50 bg-[#111827] transition-all duration-300 hover:scale-105 hover:border-emerald-400">
+
+                                {profilePicture ? (
+                                    <img
+                                        src={
+                                            profilePicture
+                                        }
+                                        alt="Profile"
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-5xl text-emerald-400">
+                                        +
+                                    </span>
+                                )}
+
+                            </div>
+
+                            <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/jpg"
+                                onChange={
+                                    handleProfilePicture
+                                }
+                                className="hidden"
+                            />
+
+                        </label>
+
+                        <p className="mt-4 text-sm font-medium text-white">
+                            {profilePicture
+                                ? "Change Profile Photo"
+                                : "Upload Profile Photo"}
+                        </p>
+
+                        <p className="mt-1 text-xs text-gray-500">
+                            PNG, JPG • Max 5 MB
+                        </p>
+
+                        {profilePicture && (
+                            <button
+                                type="button"
+                                onClick={
+                                    removeProfilePicture
+                                }
+                                className="mt-3 text-xs font-medium text-red-400 transition hover:text-red-300"
+                            >
+                                Remove Photo
+                            </button>
+                        )}
+
+                    </div>
+
+                    <div className="my-10 h-px bg-white/10" />
+
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
 
-                        <div>
-
-                            <TagInput
-                                label="Preferred Industries"
-                                placeholder="Type an industry and press Enter"
-                                value={
-                                    formData.preferredIndustries
-                                }
-                                onChange={(
-                                    industries
-                                ) =>
+                        <TagInput
+                            label="Preferred Industries"
+                            placeholder="Type an industry and press Enter"
+                            value={
+                                formData.preferredIndustries
+                            }
+                            onChange={
+                                (industries) =>
                                     setFormData({
                                         ...formData,
                                         preferredIndustries:
                                             industries,
                                     })
-                                }
-                            />
+                            }
+                        />
 
-                        </div>
-
-                        <div>
-
-                            <TagInput
-                                label="Preferred Stages"
-                                placeholder="idea, seed, series_a..."
-                                value={
-                                    formData.preferredStages
-                                }
-                                onChange={(
-                                    stages
-                                ) =>
+                        <TagInput
+                            label="Preferred Stages"
+                            placeholder="idea, seed, series_a..."
+                            value={
+                                formData.preferredStages
+                            }
+                            onChange={
+                                (stages) =>
                                     setFormData({
                                         ...formData,
                                         preferredStages:
                                             stages,
                                     })
-                                }
-                            />
-
-                        </div>
+                            }
+                        />
 
                     </div>
 
@@ -203,7 +472,7 @@ function EditInvestorProfile() {
                         <TextAreaField
                             label="Bio"
                             required
-                            rows={5}
+                            rows={6}
                             placeholder="Tell startups about your investment interests..."
                             value={
                                 formData.bio
@@ -288,7 +557,7 @@ function EditInvestorProfile() {
                                     "/investor/dashboard"
                                 )
                             }
-                            className="text-sm font-medium text-gray-400 transition hover:text-white"
+                            className="rounded-xl border border-white/10 px-8 py-3 font-medium text-gray-400 transition hover:bg-white/5 hover:text-white"
                         >
                             Cancel
                         </button>
@@ -300,7 +569,9 @@ function EditInvestorProfile() {
                         >
                             {saving
                                 ? "Saving..."
-                                : "Save Changes →"}
+                                : profileExists
+                                ? "Save Changes →"
+                                : "Create Profile →"}
                         </button>
 
                     </div>

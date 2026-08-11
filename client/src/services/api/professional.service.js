@@ -26,10 +26,12 @@ export const updateProfessionalProfile = async (profileData) => {
     return response.data;
 };
 
-export const deleteProfessionalProfile = async () => {
-    const response = await api.delete(
-        "/professional/profile"
-    );
+export const deleteProfessionalProfile =
+    async () => {
+        const response =
+            await api.delete(
+                "/professional/profile"
+            );
 
-    return response.data;
-};
+        return response.data;
+    };

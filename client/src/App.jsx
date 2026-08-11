@@ -29,6 +29,7 @@ import RaiseInvestment from "./pages/dashboard/startup_builder/RaiseInvestment";
 import InvestmentRequests from "./pages/dashboard/startup_builder/InvestmentRequests";
 import EditInvestorProfile from "./components/ui/EditInvestorProfile";
 import Connections from "./pages/dashboard/Connections";
+import ProfileManagement from "./pages/dashboard/ProfileManagement";
 function App() {
     return (
         <Routes>
@@ -58,6 +59,10 @@ function App() {
     path="/professional/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="profile-management"
+    element={<ProfileManagement />}
+/>
     <Route
     path="connections"
     element={<Connections />}
@@ -90,6 +95,10 @@ function App() {
     path="/startup_builder/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="profile-management"
+    element={<ProfileManagement />}
+/>
     <Route
     path="connections"
     element={<Connections />}
@@ -151,6 +160,10 @@ function App() {
     path="/investor/dashboard"
     element={<DashboardLayout />}
 >
+    <Route
+    path="profile-management"
+    element={<ProfileManagement />}
+/>
     <Route
     path="connections"
     element={<Connections />}
