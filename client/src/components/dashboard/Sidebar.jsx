@@ -2,6 +2,7 @@ import {
     Home,
     Briefcase,
     Clock3,
+    DollarSign,
     Bell,
     Users,
     Settings,
