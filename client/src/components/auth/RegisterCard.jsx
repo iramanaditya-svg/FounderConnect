@@ -66,10 +66,15 @@ function RegisterCard() {
         try {
             const response = await registerUser(formData);
 
-            console.log(response);
+console.log(response);
 
-            navigate("/select-role", {
-            replace: true,
+localStorage.setItem(
+    "accessToken",
+    response.data.accessToken
+);
+
+navigate("/select-role", {
+    replace: true,
 });
 
         } catch (error) {
