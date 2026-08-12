@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "../../../services/api/api";
 
 import {
     Search,
@@ -22,8 +22,8 @@ function Applicants() {
 
         try {
 
-            const startupsRes = await axios.get(
-                "http://localhost:8000/api/v1/startups/my-startups",
+            const startupsRes = await api.get(
+                "/startups/my-startups",
                 {
                     withCredentials: true,
                 }
@@ -36,8 +36,8 @@ function Applicants() {
 
             for (const startup of startups) {
 
-                const jobsRes = await axios.get(
-                    `http://localhost:8000/api/v1/startups/${startup._id}/jobs`,
+                const jobsRes = await api.get(
+                    `/startups/${startup._id}/jobs`,
                     {
                         withCredentials: true,
                     }
@@ -49,8 +49,8 @@ function Applicants() {
                 for (const job of jobs) {
 
                     const applicantsRes =
-                        await axios.get(
-                            `http://localhost:8000/api/v1/jobs/${job._id}/applicants`,
+                        await api.get(
+                            `/jobs/${job._id}/applicants`,
                             {
                                 withCredentials: true,
                             }

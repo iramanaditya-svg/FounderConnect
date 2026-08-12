@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../services/api/api";
 
 import JobForm from "./JobForm";
 function EditJobModal({
@@ -14,8 +14,8 @@ function EditJobModal({
 
         try {
 
-            const response = await axios.patch(
-                `http://localhost:8000/api/v1/jobs/${job._id}`,
+            const response = await api.patch(
+                `/jobs/${job._id}`,
                 formData,
                 {
                     withCredentials: true,

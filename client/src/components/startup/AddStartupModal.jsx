@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import axios from "axios";
+import api from "../../services/api/api";
 
 import InputField from "../ui/InputField";
 import TextAreaField from "../ui/TextAreaField";
@@ -38,8 +38,8 @@ function AddStartupModal({ open, onClose, onSuccess, }) {
         e.preventDefault();
 
         try {
-            const response = await axios.post(
-                "http://localhost:8000/api/v1/startups",
+            const response = await api.post(
+                "/startups",
                 formData,
                 {
                     withCredentials: true,

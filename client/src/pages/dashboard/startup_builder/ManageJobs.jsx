@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../../services/api/api";
 import { Plus } from "lucide-react";
 import JobCard from "../../../components/job/JobCard";
 
@@ -23,15 +23,15 @@ const fetchData = async () => {
 
         const [startupRes, jobsRes] = await Promise.all([
 
-            axios.get(
-                `http://localhost:8000/api/v1/startups/${startupId}`,
+            api.get(
+                `/startups/${startupId}`,
                 {
                     withCredentials: true,
                 }
             ),
 
-            axios.get(
-                `http://localhost:8000/api/v1/startups/${startupId}/jobs`,
+            api.get(
+                `/startups/${startupId}/jobs`,
                 {
                     withCredentials: true,
                 }

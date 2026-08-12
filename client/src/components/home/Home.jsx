@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api/api";
 
 import {
     BriefcaseBusiness,
@@ -104,8 +104,8 @@ function Home() {
             setError("");
 
             const startupsResponse =
-                await axios.get(
-                    "http://localhost:8000/api/v1/startups/my-startups",
+                await api.get(
+                    "/startups/my-startups",
                     {
                         withCredentials: true,
                     }
@@ -130,8 +130,8 @@ function Home() {
                             try {
 
                                 const response =
-                                    await axios.get(
-                                        `http://localhost:8000/api/v1/startups/${startup._id}/jobs`,
+                                    await api.get(
+                                        `/startups/${startup._id}/jobs`,
                                         {
                                             withCredentials: true,
                                         }
@@ -183,8 +183,8 @@ function Home() {
                             try {
 
                                 const response =
-                                    await axios.get(
-                                        `http://localhost:8000/api/v1/jobs/${job._id}/applicants`,
+                                    await api.get(
+                                        `/jobs/${job._id}/applicants`,
                                         {
                                             withCredentials: true,
                                         }
@@ -455,8 +455,8 @@ function Home() {
                 try {
 
                     const response =
-                        await axios.get(
-                            "http://localhost:8000/api/v1/investments/my",
+                        await api.get(
+                            "/investments/my",
                             {
                                 withCredentials: true,
                             }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api/api";
 
 function ApplyJobModal({
     open,
@@ -28,8 +28,8 @@ function ApplyJobModal({
 
             try {
 
-                const response = await axios.get(
-                    "http://localhost:8000/api/v1/professional/check-resume",
+                const response = await api.get(
+                    "/professional/check-resume",
                     {
                         withCredentials: true,
                     }
@@ -150,8 +150,8 @@ function ApplyJobModal({
 
         try {
 
-            const response = await axios.post(
-                `http://localhost:8000/api/v1/jobs/${job._id}/apply`,
+            const response = await api.post(
+                `/jobs/${job._id}/apply`,
                 {
                     coverLetter,
                 },

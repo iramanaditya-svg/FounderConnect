@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../../services/api/api";
 
 import ApplicantCard from "../../../components/application/ApplicantCard";
 
@@ -18,9 +18,9 @@ function JobApplicants() {
 
         try {
 
-            const response = await axios.get(
+            const response = await api.get(
 
-                `http://localhost:8000/api/v1/jobs/${jobId}/applicants`,
+                `/jobs/${jobId}/applicants`,
 
                 {
                     withCredentials: true,

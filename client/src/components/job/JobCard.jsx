@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../services/api/api";
 import {
     Pencil,
     Trash2,
@@ -25,8 +25,8 @@ function JobCard({ job, onRefresh }) {
 
         try {
 
-            await axios.delete(
-                `http://localhost:8000/api/v1/jobs/${job._id}`,
+            await api.delete(
+                `/jobs/${job._id}`,
                 {
                     withCredentials: true,
                 }

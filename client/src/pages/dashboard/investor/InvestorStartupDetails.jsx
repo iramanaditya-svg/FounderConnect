@@ -19,7 +19,7 @@ import {
     useNavigate,
 } from "react-router-dom";
 
-import axios from "axios";
+import api from "../../../services/api/api";
 
 import {
     createInvestmentRequest,
@@ -59,8 +59,8 @@ function InvestorStartupDetails() {
         try {
 
             const response =
-                await axios.get(
-                    `http://localhost:8000/api/v1/startups/${startupId}`,
+                await api.get(
+                    `/startups/${startupId}`,
                     {
                         withCredentials: true,
                     }

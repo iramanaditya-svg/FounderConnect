@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 
 
-import axios from "axios";
+import api from "../../services/api/api";
 
 function ApplicantCard({
     application,
@@ -23,9 +23,9 @@ const navigate = useNavigate();
 
         try {
 
-            const response = await axios.patch(
+            const response = await api.patch(
 
-                `http://localhost:8000/api/v1/applications/${application._id}/status`,
+                `/applications/${application._id}/status`,
 
                 {
                     status,

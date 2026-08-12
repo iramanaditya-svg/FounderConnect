@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../services/api/api";
 
 import StartupJobCard from "../startup/StartupJobCard";
 
@@ -9,8 +9,8 @@ function StartupJobs({ startupId }) {
 
     try {
 
-        const response = await axios.get(
-            "http://localhost:8000/api/v1/applications/my",
+        const response = await api.get(
+            "/applications/my",
             {
                 withCredentials: true,
             }
@@ -40,8 +40,8 @@ function StartupJobs({ startupId }) {
 
         try {
 
-            const response = await axios.get(
-                `http://localhost:8000/api/v1/startups/${startupId}/jobs`,
+            const response = await api.get(
+                `/startups/${startupId}/jobs`,
                 {
                     withCredentials: true,
                 }

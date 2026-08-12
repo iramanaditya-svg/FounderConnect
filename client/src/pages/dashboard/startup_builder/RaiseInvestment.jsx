@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../services/api/api";
 
 function RaiseInvestment() {
     const [startups, setStartups] = useState([]);
@@ -26,8 +26,8 @@ function RaiseInvestment() {
 
     const fetchStartups = async () => {
         try {
-            const response = await axios.get(
-                "http://localhost:8000/api/v1/startups/my-startups",
+            const response = await api.get(
+                "/startups/my-startups",
                 {
                     withCredentials: true,
                 }
@@ -44,8 +44,8 @@ function RaiseInvestment() {
                 myStartups.map(async (startup) => {
                     try {
                         const jobsResponse =
-                            await axios.get(
-                                `http://localhost:8000/api/v1/startups/${startup._id}/jobs`,
+                            await api.get(
+                                `/startups/${startup._id}/jobs`,
                                 {
                                     withCredentials: true,
                                 }
@@ -68,8 +68,8 @@ function RaiseInvestment() {
                                 async (job) => {
                                     try {
                                         const response =
-                                            await axios.get(
-                                                `http://localhost:8000/api/v1/jobs/${job._id}/applicants`,
+                                            await api.get(
+                                                `/jobs/${job._id}/applicants`,
                                                 {
                                                     withCredentials: true,
                                                 }
@@ -205,8 +205,8 @@ function RaiseInvestment() {
         try {
             setSubmitting(true);
 
-            await axios.patch(
-                `http://localhost:8000/api/v1/startups/${selectedStartup._id}`,
+            await api.patch(
+                `/startups/${selectedStartup._id}`,
                 {
                     fundingGoal:
                         Number(

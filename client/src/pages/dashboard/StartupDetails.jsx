@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api/api";
 
 import StartupJobs from "../../components/job/StartupJobs";
 
@@ -23,8 +23,8 @@ function StartupDetails() {
 
     try {
 
-        const response = await axios.get(
-            "http://localhost:8000/api/v1/applications/my",
+        const response = await api.get(
+            "/applications/my",
             {
                 withCredentials: true,
             }
@@ -49,8 +49,8 @@ function StartupDetails() {
 
         try {
 
-            const response = await axios.get(
-                `http://localhost:8000/api/v1/startups/${startupId}`,
+            const response = await api.get(
+                `/startups/${startupId}`,
                 {
                     withCredentials: true,
                 }

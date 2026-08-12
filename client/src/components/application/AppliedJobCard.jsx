@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api/api";
 
 function AppliedJobCard({ application }) {
 
@@ -52,8 +52,8 @@ function AppliedJobCard({ application }) {
 
         try {
 
-            const response = await axios.delete(
-                `http://localhost:8000/api/v1/applications/${_id}`,
+            const response = await api.delete(
+                `/applications/${_id}`,
                 {
                     withCredentials: true,
                 }

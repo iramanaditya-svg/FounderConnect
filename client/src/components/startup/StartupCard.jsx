@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../services/api/api";
 import { useNavigate } from "react-router-dom";
 import {
     MapPin,
@@ -24,8 +24,8 @@ function StartupCard({
         if (!confirmed) return;
 
         try {
-            await axios.delete(
-                `http://localhost:8000/api/v1/startups/${startup._id}`,
+            await api.delete(
+                `/startups/${startup._id}`,
                 {
                     withCredentials: true,
                 }

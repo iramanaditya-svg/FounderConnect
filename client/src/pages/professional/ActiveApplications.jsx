@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "../../services/api/api";
 import {
     Briefcase,
     Building2,
@@ -22,8 +22,8 @@ function ActiveApplications() {
         try {
             setLoading(true);
 
-            const response = await axios.get(
-                "http://localhost:8000/api/v1/applications/my",
+            const response = await api.get(
+                "/applications/my",
                 {
                     withCredentials: true,
                 }
@@ -65,8 +65,8 @@ function ActiveApplications() {
         if (!confirmed) return;
 
         try {
-            await axios.delete(
-                `http://localhost:8000/api/v1/applications/${applicationId}`,
+            await api.delete(
+                `/applications/${applicationId}`,
                 {
                     withCredentials: true,
                 }

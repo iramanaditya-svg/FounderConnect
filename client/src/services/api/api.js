@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "https://founder-connect-khf4.vercel.app/api/v1",
+    baseURL:
+        import.meta.env.VITE_API_BASE_URL ||
+        "https://founder-connect-khf4.vercel.app/api/v1",
     withCredentials: true,
 });
 

@@ -14,7 +14,7 @@ import {
     useState,
 } from "react";
 
-import axios from "axios";
+import api from "../../../services/api/api";
 
 import {
     getStartupInvestmentRequests,
@@ -40,8 +40,8 @@ function InvestmentRequests() {
         try {
 
             const startupResponse =
-                await axios.get(
-                    "http://localhost:8000/api/v1/startups/my-startups",
+                await api.get(
+                    "/startups/my-startups",
                     {
                         withCredentials: true,
                     }

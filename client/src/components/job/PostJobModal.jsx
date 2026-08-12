@@ -1,4 +1,4 @@
-import axios from "axios";
+import api from "../../services/api/api";
 
 import JobForm from "./JobForm";
 
@@ -15,8 +15,8 @@ function PostJobModal({
 
         try {
 
-            const response = await axios.post(
-                `http://localhost:8000/api/v1/startups/${startupId}/jobs`,
+            const response = await api.post(
+                `/startups/${startupId}/jobs`,
                 formData,
                 {
                     withCredentials: true,

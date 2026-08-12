@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api/api";
 
 import InputField from "../../components/ui/InputField";
 import TextAreaField from "../../components/ui/TextAreaField";
@@ -52,8 +52,8 @@ function ManageStartup() {
             setLoading(true);
 
             const response =
-                await axios.get(
-                    `http://localhost:8000/api/v1/startups/${startupId}`,
+                await api.get(
+                    `/startups/${startupId}`,
                     {
                         withCredentials: true,
                     }
@@ -122,8 +122,8 @@ function ManageStartup() {
 
         try {
             const response =
-                await axios.patch(
-                    `http://localhost:8000/api/v1/startups/${startupId}`,
+                await api.patch(
+                    `/startups/${startupId}`,
                     formData,
                     {
                         withCredentials: true,

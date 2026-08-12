@@ -13,7 +13,7 @@ import {
     useNavigate,
 } from "react-router-dom";
 
-import axios from "axios";
+import api from "../../../services/api/api";
 
 function InvestorStartups() {
 
@@ -27,8 +27,8 @@ function InvestorStartups() {
 
 const fetchStartups = async () => {
     try {
-        const response = await axios.get(
-            "http://localhost:8000/api/v1/startups",
+        const response = await api.get(
+            "/startups",
             {
                 withCredentials: true,
             }

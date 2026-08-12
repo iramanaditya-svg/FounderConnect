@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../services/api/api";
 
 import AppliedJobCard from "../../components/application/AppliedJobCard";
 
@@ -12,8 +12,8 @@ function AppliedJobs() {
 
         try {
 
-            const response = await axios.get(
-                "http://localhost:8000/api/v1/applications/my",
+            const response = await api.get(
+                "/applications/my",
                 {
                     withCredentials: true,
                 }

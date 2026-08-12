@@ -26,6 +26,13 @@ const handleSubmit = async () => {
 
         const user = response.data.user;
 
+        if (response.data.accessToken) {
+            localStorage.setItem(
+                "accessToken",
+                response.data.accessToken
+            );
+        }
+
         if (!user.activeRole) {
             localStorage.setItem(
                 "user",

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../services/api/api";
 import { Plus, Rocket, X } from "lucide-react";
 
 import AddStartupModal from "../../../components/startup/AddStartupModal";
@@ -15,8 +15,8 @@ function MyStartups() {
 
     const fetchStartups = async () => {
         try {
-            const response = await axios.get(
-                "http://localhost:8000/api/v1/startups/my-startups",
+            const response = await api.get(
+                "/startups/my-startups",
                 {
                     withCredentials: true,
                 }
@@ -39,8 +39,8 @@ function MyStartups() {
     const handleOpenToInvestors = async (startup) => {
         try {
             if (startup.openToInvestors) {
-                await axios.patch(
-                    `http://localhost:8000/api/v1/startups/${startup._id}`,
+                await api.patch(
+                    `/startups/${startup._id}`,
                     {
                         openToInvestors: false,
                     },
@@ -63,8 +63,8 @@ function MyStartups() {
                 return;
             }
 
-            const jobsResponse = await axios.get(
-                `http://localhost:8000/api/v1/startups/${startup._id}/jobs`,
+            const jobsResponse = await api.get(
+                `/startups/${startup._id}/jobs`,
                 {
                     withCredentials: true,
                 }
@@ -77,8 +77,8 @@ function MyStartups() {
 
             for (const job of jobs) {
                 const applicantsResponse =
-                    await axios.get(
-                        `http://localhost:8000/api/v1/jobs/${job._id}/applicants`,
+                    await api.get(
+                        `/jobs/${job._id}/applicants`,
                         {
                             withCredentials: true,
                         }
@@ -110,8 +110,8 @@ function MyStartups() {
                 return;
             }
 
-            await axios.patch(
-                `http://localhost:8000/api/v1/startups/${startup._id}`,
+            await api.patch(
+                `/startups/${startup._id}`,
                 {
                     openToInvestors: true,
                 },

@@ -39,6 +39,12 @@ const registerUser = asyncHandler(async (req, res) => {
         password
     } = req.body;
 
+    const normalizedUsername =
+        username?.trim().toLowerCase();
+
+    const normalizedEmail =
+        email?.trim().toLowerCase();
+
     if (
         [fullName, username, email, password].some(
             (field) => field?.trim() === ""
@@ -48,7 +54,10 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const existedUser = await User.findOne({
-        $or: [{ username }, { email }]
+        $or: [
+            { username: normalizedUsername },
+            { email: normalizedEmail },
+        ],
     });
 
     if (existedUser) {
@@ -60,8 +69,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
     const user = await User.create({
         fullName,
-        username: username.toLowerCase(),
-        email: email.toLowerCase(),
+        username: normalizedUsername,
+        email: normalizedEmail,
         password
     });
 
@@ -144,6 +153,7 @@ const loginUser = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: true,
+        sameSite: "none",
     };
 
     return res.status(200)
@@ -179,6 +189,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     const options = {
         httpOnly: true,
         secure: true,
+        sameSite: "none",
     };
 
     return res
@@ -218,10 +229,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         );
     }
 
-    const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(user._id);
+    const {
+        accessToken,
+        refreshToken: newRefreshToken,
+    } = await generateAccessAndRefreshToken(user._id);
     const options = {
         httpOnly: true,
         secure: true,
+        sameSite: "none",
     };
 
     return res.status(200)
@@ -289,6 +304,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
     const { fullName, username, email } = req.body;
+
     if (!fullName && !username && !email) {
         throw new ApiError(
             400,
@@ -296,23 +312,15 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         );
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user._id,
-        {
-            $set: {
-                fullName: fullName,
-                username: username?.toLowerCase(),
-                email: email?.toLowerCase()
-            },
-        },
-        {
-            new: true,
-        }
-    ).select("-password -refreshToken");
+    const normalizedUsername =
+        username?.trim().toLowerCase();
 
-    if (username) {
+    const normalizedEmail =
+        email?.trim().toLowerCase();
+
+    if (normalizedUsername) {
         const existingUser = await User.findOne({
-            username: username.toLowerCase(),
+            username: normalizedUsername,
             _id: {
                 $ne: req.user._id,
             },
@@ -326,9 +334,9 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         }
     }
 
-    if (email) {
+    if (normalizedEmail) {
         const existingUser = await User.findOne({
-            email: email.toLowerCase(),
+            email: normalizedEmail,
             _id: {
                 $ne: req.user._id,
             },
@@ -341,6 +349,39 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             );
         }
     }
+
+    const update = {};
+
+    if (fullName?.trim()) {
+        update.fullName = fullName.trim();
+    }
+
+    if (normalizedUsername) {
+        update.username = normalizedUsername;
+    }
+
+    if (normalizedEmail) {
+        update.email = normalizedEmail;
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: update,
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    ).select("-password -refreshToken");
+
+    if (!user) {
+        throw new ApiError(
+            404,
+            "User not found"
+        );
+    }
+
     return res.status(200).json(
         new ApiResponse(
             200,
@@ -349,7 +390,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         )
     );
 });
-
 
 
 const selectRole = asyncHandler(async (req, res) => {
